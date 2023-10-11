@@ -3,7 +3,7 @@
 ## Anggota Kelompok
 Kelas : PBP C
 Kode Asdos : VRO
-- Nurin
+- Nurin Farzana Nafiah (2206082695)
 - Calista Sekar Pamaja (2206082064)
 - Nanda- 
 - Bimo- 
@@ -25,7 +25,7 @@ Modul ini menampilkan halaman utama dari aplikasi `NAMA_APP`. Pada `Homepage` te
 ### 📝 Book Reviews 
 Fitur ini memungkinkan pengguna untuk menambahkan ulasan terhadap suatu buku. Di dalam halaman `Book Reviews`, pengguna dapat memilih salah satu buku untuk diulas singkat ke dalam sebuah form.
 ### 📖 Book Loans
-Pada fitur ini, pengguna dapat menambahkan buku-buku yang ingin dipinjamnya. Selain itu, pengguna juga dapat melihat daftar buku serta mengembalikan buku yang telah dipinjamnya.
+Pada fitur ini, pengguna dapat menambahkan buku-buku yang ingin dipinjamnya. Selain itu, pengguna juga dapat melihat daftar buku serta mengembalikan buku yang telah dipinjamnya(menghapus buku dari list peminjaman).
 ### 📔 Collections
 Fitur ini menampilkan daftar buku-buku yang tersedia di `NAMA_APP`. Selain itu, pengguna juga dapat melihat daftar buku favoritnya. Modul ini mengimplementasikan list of buku.
 ### 📚 Bookshelf
