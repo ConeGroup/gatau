@@ -1,13 +1,14 @@
 # Tugas Kelompok PTS C01 <CONE>
 ## Anggota Kelompok
-PBP C | VRO
+**PBP C | VRO**
 - Nurin Farzana Nafiah(2206082695)
 - Calista Sekar Pamaja (2206082064)
 - Muhammad Nanda Pratama (2206081654)
 - Fazle Ilahi Bimo Aji (2206081446)
 - Resanda Dezca Asyam (2206082682)
+------------------
 
-# Librarium
+# Librarium 📖
 ## Background Story
 Literasi adalah kunci untuk pengembangan individu dan kemajuan bangsa. Indonesia memiliki berbagai regulasi yang mendukung peningkatan literasi, termasuk Undang-Undang Dasar 1945 yang menekankan hak warga negara untuk mendapatkan pendidikan yang layak. Librarium, sebagai sebuah website yang mengedepankan kegiatan membaca dan berbicara tentang buku, memiliki peran penting dalam memajukan literasi di Indonesia. Fitur-fitur seperti Book Reviews memungkinkan pengguna untuk mengekspresikan pendapat mereka tentang buku dan berbagi rekomendasi dengan komunitas pembaca lainnya. Hal ini membantu memotivasi masyarakat untuk membaca dan meningkatkan pemahaman mereka tentang literatur.
 
@@ -23,7 +24,7 @@ Librarium adalah sebuah _website_ seru yang membantu kamu berbicara tentang buku
 
 ## Daftar modul yang akan diimplementasikan
 ### 🏠 Homepage
-Modul ini menampilkan halaman utama dari aplikasi `NAMA_APP`. Pada `Homepage` terdapat overview mengenai fitur-fitur yang aplikasi kami sediakan.
+Modul ini menampilkan halaman utama dari aplikasi Librarium. Pada `Homepage` terdapat overview mengenai fitur-fitur yang aplikasi kami sediakan.
 ### 📝 Book Reviews
 Fitur ini memungkinkan pengguna untuk menambahkan ulasan terhadap suatu buku. Di dalam halaman `Book Reviews`, pengguna dapat memilih salah satu buku untuk diulas singkat ke dalam sebuah _form_.
 ### 📖 Book Loans
@@ -37,12 +38,12 @@ Modul ini memungkinkan pengguna untuk meminta pengajuan buku baru. Pengguna dapa
 
 ## Datasets
 _Project_ kami akan menggunakan sumber dataset buku `Book Recommendation Dataset` oleh MÖBIUS dari platform Kaggle
-https://www.kaggle.com/datasets/arashnic/book-recommendation-dataset/
+[Book Recommendation Dataset by MÖBIUS](https://www.kaggle.com/datasets/arashnic/book-recommendation-dataset/)
 
 ## User Roles
 ### Pengguna yang belum login 🔒
 Berikut ini hal-hal yang dapat dilakukan oleh pengguna yang belum log in:
-- Mengakses `homepage`.
+- Mengakses `Homepage`.
 - Membuka halaman `About Us`.
 - Memberikan kritik dan saran.
 ### User yang sudah login 🔓
