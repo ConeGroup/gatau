@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'collection',
     'loans',
     'reviews',
+    'book',
 ]
 
 MIDDLEWARE = [
