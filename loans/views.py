@@ -16,6 +16,21 @@ from book.models import Book
 
 
 # Create your views here.
+@login_required(login_url='/login')
+def show_loans(request):
+    items = LoansBook.objects.filter(user=request.user)
+    context = {
+        'name': request.user.username,
+        'class': 'PBP C',
+        'items': items,
+    }
+
+    return render(request, "loans.html", context)
+
+def get_product_json(request):
+    product_item = LoansBook.objects.filter(user=request.user)
+    return HttpResponse(serializers.serialize('json', product_item))
+
 @csrf_exempt
 def add_book_ajax(request):
     if request.method == 'POST':

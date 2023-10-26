@@ -1,31 +1,140 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="exampleModalLabel">Add New Product</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="form" onsubmit="return false;">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <label for="number_book" class="col-form-label">Number book:</label>
-                        <input type="number" class="form-control" id="number_book" name="number_book"></input>
-                    </div>
-                    <div class="mb-3">
-                        <label for="date_return" class="col-form-label">Return Date:</label>
-                        <input type="date" class="form-control" id="date_return" name="date_return"></input>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="button_add" data-bs-dismiss="modal">Add Product</button>
+<table id="product_table">
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Add New Product</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="form" onsubmit="return false;">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="number_book" class="col-form-label">Number Book:</label>
+                            <input type="number" class="form-control" id="number_book" name="number_book"></input>
+                        </div>
+                        <div class="mb-3">
+                            <label for="date_return" class="col-form-label">Date of Return:</label>
+                            <input type="date" class="form-control" id="date_return" name="date_return"></input>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="button_add" data-bs-dismiss="modal">Add Product</button>
+                </div>
             </div>
         </div>
     </div>
+</table>
+<button type="button" class="custom-button" data-bs-toggle="modal" data-bs-target="#exampleModal">Add Product by AJAX</button>
 </div>
+<script>
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value
+    async function getProducts() {
+        return fetch("{% url 'loans:get_product_json' %}").then((res) => res.json())
+    }
+    async function refreshProducts() {
+        document.getElementById("product_table").innerHTML = ""
+        const products = await getProducts()
+        let htmlString = ``;
+
+        products.forEach((item) => {
+                htmlString += `\n<tr>
+                    <div class="product-card">
+                        <div class="product-detail">
+                            <h3>${item.fields.Number}</h3>
+                        </div>
+
+                        <button onclick="deleteProduct(${item.pk})" type="submit" style="background-color: #ff3333; color: #fff; padding: 5px 10px; border: none; border-radius: 5px; font-size: 14px; cursor: pointer; width: 100%; margin-right: 10px;">
+                            Delete
+                        </button>
+            </tr>` 
+            })
+        
+        document.getElementById("product_table").innerHTML = htmlString
+    }
+    function addProduct() {
+        fetch("{% url 'loans:add_book_ajax' %}", {
+            method: "POST",
+            body: new FormData(document.querySelector('#form'))
+        }).then(refreshProducts)
+
+        document.getElementById("form").reset()
+        return false
+    }
+    
+    function deleteProduct(pk) {
+        fetch(`/delete_book/${pk}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': csrftoken,
+                'mode': 'same-origin'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Product deleted:', data);
+            refreshProducts();
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    document.getElementById("button_add").onclick = addProduct
+    refreshProducts()
+</script>
+<div class="container">
+    <div class="row" id="book-cards">
+        <!-- Kartu-kartu buku akan ditampilkan di sini -->
+    </div>
+</div>
+
+<script>
+    // Referensi ke div dengan id "book-cards"
+    const bookCardsContainer = document.getElementById("book-cards");
+
+    // Fungsi untuk membuat kartu buku
+    function createBookCard(book) {
+        const card = document.createElement("div");
+        card.classList.add("col-sm-4"); // Ubah sesuai dengan kebutuhan ukuran kolom
+
+        // Buat tampilan kartu buku
+        card.innerHTML = `
+            <div class="card">
+                <img src="${book.fields.image_s}" class="card-img-top" alt="Cover Buku">
+                <div class="card-body">
+                    <h5 class="card-title">${book.fields.title}</h5>
+                    <p class="card-text">Author: ${book.fields.author}</p>
+                    <p class="card-text">Year: ${book.fields.year}</p>
+                    <p class="card-text">Publisher: ${book.fields.publisher}</p>
+                </div>
+            </div>
+        `;
+
+        return card;
+    }
+
+    // Fungsi untuk mengambil data buku dari URL
+    async function fetchBooksData() {
+        try {
+            const response = await fetch("{% url 'loans:get_book_json' %}");
+            const booksData = await response;
+
+            // Tambahkan kartu-kartu buku ke dalam container
+            booksData.forEach((book) => {
+                const card = createBookCard(book);
+                bookCardsContainer.appendChild(card);
+            });
+        } catch (error) {
+            console.error("Gagal mengambil data buku: " + error);
+        }
+    }
+
+    // Panggil fungsi untuk mengambil data buku
+    fetchBooksData();
+</script>
+
 {% endblock content %}
