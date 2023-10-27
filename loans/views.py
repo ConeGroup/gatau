@@ -21,7 +21,6 @@ def show_loans(request):
     items = LoansBook.objects.filter(user=request.user)
     context = {
         'name': request.user.username,
-        'class': 'PBP C',
         'items': items,
     }
 
@@ -34,14 +33,14 @@ def get_product_json(request):
 @csrf_exempt
 def add_book_ajax(request):
     if request.method == 'POST':
-        form = LoanForm(request.POST)
-        if form.is_valid():
-            new_loan = form.save(commit=False)  # Mencegah penyimpanan langsung ke database
-            new_loan.user = request.user  # Atur user sesuai dengan pengguna yang masuk
-            new_loan.save()  # Simpan ke database
-            return JsonResponse({'message': 'CREATED'}, status=201)
-        else:
-            return JsonResponse({'message': 'Invalid Form Data'}, status=400)
+        number_book = request.POST.get("number_book")
+        date_return = request.POST.get("date_return")
+        user = request.user
+
+        new_product = LoansBook(number_book=number_book, date_return=date_return, user=user)
+        new_product.save()
+
+        return HttpResponse(b"CREATED", status=201)
 
     return HttpResponseNotFound()
 
