@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div>
+    <h1>Welcome, {{ name }}</h1>
+    <h2>Your Collections</h2>
+    <ul>
+        {% for collection in collections %}
+            <li>
+                {{ collection.name }} - <a href="{% url 'collection:edit_collection' collection.id %}">Edit</a> | 
+                <a href="{% url 'collection:delete_collection' collection.id %}">Delete</a>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+
+<div>
+    <h2>Add a New Collection</h2>
+    <form method="post" action="{% url 'collection:create_collection_ajax' %}" id="create-collection-form">
+        {% csrf_token %}
+        <input type="text" name="name" placeholder="Collection Name" required>
+        <button type="submit">Create</button>
+    </form>
+</div>
+
+<div>
+    <h2>Add Book to Collection</h2>
+    <form method="post" action="{% url 'collection:add_book_to_collection_ajax' %}" id="add-book-form">
+        {% csrf_token %}
+        <select name="collection_id" required>
+            {% for collection in collections %}
+                <option value="{{ collection.id }}">{{ collection.name }}</option>
+            {% endfor %}
+        </select>
+        <select name="book_id" required>
+            {% for book in books %}
+                <option value="{{ book.id }}">{{ book.title }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Add Book</button>
+    </form>
+</div>
+
+<div>
+    <h2>JSON Data</h2>
+    <button id="get-collections-json">Get Collections JSON</button>
+    <button id="get-books-json">Get Books JSON</button>
+</div>
+
+<script>
+    document.getElementById("get-collections-json").addEventListener("click", function () {
+        fetch("{% url 'collection:get_collections_json' %}")
+            .then(response => response.json())
+            .then(data => console.log(data))
+            .catch(error => console.error(error));
+    });
+
+    document.getElementById("get-books-json").addEventListener("click", function () {
+        fetch("{% url 'collection:get_book_json' %}")
+            .then(response => response.json())
+            .then(data => console.log(data))
+            .catch(error => console.error(error));
+    });
+</script>
+</div>
+{% endblock %}
