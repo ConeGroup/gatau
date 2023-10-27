@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% include 'navbar.html' %}
+
+<div class="container">
+    <div class="row gy-3 my-3" id="card-row">
+    </div>
+</div>
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div><h1 class="modal-title fs-5" id="exampleModalLabel">Request New Book</h1></div>
+                <div><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+            </div>
+            <div class="modal-body">
+                <form id="form" onsubmit="return false;">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="title" class="col-form-label">Title</label>
+                        <input type="text" class="form-control" id="title" name="title" value=""></input>
+                    </div>
+                    <div class="mb-3">
+                        <label for="author" class="col-form-label">Author</label>
+                        <input type="text" class="form-control" id="author" name="author" value=""></input>
+                    </div>
+                    <div class="mb-3">
+                        <label for="year" class="col-form-label">Year</label>
+                        <input type="number" class="form-control" id="year" name="year" value=""></input>
+                    </div>
+                    <div class="mb-3">
+                        <label for="publisher" class="col-form-label">Publisher</label>
+                        <input type="text" class="form-control" id="publisher" name="publisher" value=""></input>
+                    </div>
+                    <div class="mb-3">
+                        <label for="initial_review" class="col-form-label">What's interesting about this book?</label>
+                        <input type="text" class="form-control" id="initial_review" name="initial_review" value=""></input>
+                    </div>
+                    <div class="mb-3">
+                        <label for="image_m" class="col-form-label">Book's image link</label>
+                        <input type="text" class="form-control" id="image_m" name="image_m" value=""></input>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="button_add" data-bs-dismiss="modal" onclick="">Add Book Request</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function getRequestItem() {
+        return fetch("{% url 'bookrequest:get_request_item_json' %}").then((res) => res.json())
+    }
+
+    async function countItem() {
+        let string = "Your request(s): "
+        const requestItem = await getRequestItem()
+        let itemCount = 0
+        requestItem.forEach((item) => {
+            itemCount += 1
+        })
+        string += String(itemCount) + " book(s)"
+        document.getElementById("item-count").innerHTML = string
+    }
+
+    async function refreshRequest() {
+        document.getElementById("card-row").innerHTML = ""
+        const requestItem = await getRequestItem()
+        let itemCount = 0
+        requestItem.forEach((item) => {
+            itemCount += 1
+        })
+        let htmlString = `<p class="logged-user">Welcome {{name}}</p>
+        <P id="item-count">Your request: ${itemCount} book(s)</P>`
+
+        requestItem.forEach((item) => {
+            htmlString += `\n<div class="col-sm-6 col-md-4 col-lg-3" id="card${item.pk}">
+                <div class="card h-100">
+                    <img src="https://www.techcnews.com/wp-content/uploads/2019/09/Gundala-poster.jpg" class="card-img-top" alt="Gundala">
+                    <div class="card-body">
+                        <h5 class="card-title" id="card-title${item.pk}">${item.fields.title}</h5>
+                        <p class="card-text" id="card-author${item.pk}">${item.fields.author}</p>
+                        <p class="card-text" id="card-year${item.pk}">${item.fields.year}</p>
+                        <p class="card-text" id="card-publisher${item.pk}">${item.fields.publisher}</p>
+                        <p class="card-text" id="card-initial-review${item.pk}">${item.fields.initial_review}</p>
+                        <nav aria-label="..." class="pag-1">
+                            <div class="div-rm">
+                                <button type="button" class="btn btn-warning" id="update-card" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="switchButtonUpdate(${item.pk})">Update</button>
+                            </div>
+                            <div class="div-rm">
+                                <button class="btn btn-danger" id="rm-btn" onclick="removeRequest(${item.pk})">Remove</button>
+                            </div>
+                        </nav>
+                    </div>
+                </div>
+            </div>` 
+        })
+        htmlString += '\n<a><button type="button" class="btn btn-primary" id="create-card" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="switchButtonAdd()">Add New Book Request</button></a>'
+    
+        document.getElementById("card-row").innerHTML = htmlString
+    }
+
+    async function removeRequest(id) {
+        let url="{% url 'bookrequest:remove_request' '0' %}";
+        let count = 0
+        url=url.replace('0',id);
+        const response = await fetch(url,{
+            method: "DELETE",
+        }).then(countItem)
+        document.getElementById("card" + String(id)).innerHTML = ''
+    }
+
+    async function switchButtonUpdate(id) {
+        const requestItem = await getRequestItem()
+        requestItem.forEach((item) => {
+            if(item.pk === id) {
+                item_request = item
+                // console.log("hello")
+            }
+        })
+
+        // An array of element IDs
+        const elementIds = ['title', 'author', 'year', 'publisher', 'initial_review', 'image_m'];
+
+        // Loop through the element IDs and set the "value" attribute
+        elementIds.forEach(elmId => {
+            const inputElement = document.getElementById(elmId);
+            if (inputElement) {
+                
+                inputElement.setAttribute('value', item_request.fields[elmId]);
+            }
+        });
+
+        document.getElementById("button_add").innerHTML = "Update Request"
+        document.getElementById("button_add").onclick = function() {
+            updateRequest(id); // Call your updateRequest function here
+        };
+    }
+
+    refreshRequest()
+
+    function switchButtonAdd() {
+
+        // An array of element IDs
+        const elementIds = ['title', 'author', 'year', 'publisher', 'initial_review', 'image_m'];
+
+        // The new value you want to set
+        const newValue = '';
+
+        // Loop through the element IDs and set the "value" attribute
+        elementIds.forEach(id => {
+            const inputElement = document.getElementById(id);
+            if (inputElement) {
+                inputElement.setAttribute('value', newValue);
+            }
+        });
+
+        document.getElementById("button_add").innerHTML = "Add Book Request"
+    }
+
+    
+    function addRequest() {
+        fetch("{% url 'bookrequest:create_request' %}", {
+            method: "POST",
+            body: new FormData(document.querySelector('#form'))
+        }).then(refreshRequest)
+
+        document.getElementById("form").reset()
+        return false
+    }
+
+    async function updateCardFields(id) {
+
+        const requestItems = await getRequestItem();
+        const target = requestItems.find(item => item.pk === id);
+
+        if (target) {
+            document.getElementById('card-title' + id).innerHTML = target.fields.title;
+            document.getElementById('card-author' + id).innerHTML = target.fields.author;
+            document.getElementById('card-year' + id).innerHTML = target.fields.year;
+            document.getElementById('card-publisher' + id).innerHTML = target.fields.publisher;
+            document.getElementById('card-initial-review' + id).innerHTML = target.fields.initial_review;
+            // console.log("bello")
+            }
+    }
+
+    async function updateRequest(id) {
+
+        let url="{% url 'bookrequest:update_request' '0' %}";
+        url= url.replace('0',id);
+        const response = await fetch(url,{
+            method: "POST",
+            body: new FormData(document.querySelector('#form')),
+        }).then(countItem)
+
+        updateCardFields(id)
+        document.getElementById("form").reset()
+    }
+
+    if(document.getElementById("button_add").innerHTML === "Add Book Request") {
+        document.getElementById("button_add").onclick = addRequest
+    }
+    
+</script>
+
+{% endblock content %}
