@@ -10,7 +10,7 @@
 </div>
 
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
                 <div><h1 class="modal-title fs-5" id="exampleModalLabel">Request New Book</h1></div>
@@ -28,6 +28,10 @@
                         <input type="text" class="form-control" id="author" name="author" value=""></input>
                     </div>
                     <div class="mb-3">
+                        <label for="isbn" class="col-form-label">ISBN</label>
+                        <input type="number" class="form-control" id="isbn" name="isbn" value=""></input>
+                    </div>
+                    <div class="mb-3">
                         <label for="year" class="col-form-label">Year</label>
                         <input type="number" class="form-control" id="year" name="year" value=""></input>
                     </div>
@@ -37,7 +41,7 @@
                     </div>
                     <div class="mb-3">
                         <label for="initial_review" class="col-form-label">What's interesting about this book?</label>
-                        <input type="text" class="form-control" id="initial_review" name="initial_review" value=""></input>
+                        <textarea type="text" class="form-control" id="initial_review" name="initial_review" placeholder=""></textarea>
                     </div>
                     <div class="mb-3">
                         <label for="image_m" class="col-form-label">Book's image link</label>
@@ -80,15 +84,17 @@
         <P id="item-count">Your request: ${itemCount} book(s)</P>`
 
         requestItem.forEach((item) => {
-            htmlString += `\n<div class="col-sm-6 col-md-4 col-lg-3" id="card${item.pk}">
+            htmlString += `
+            \n<div class="col-sm-6 col-md-4 col-lg-3" id="card${item.pk}">
                 <div class="card h-100">
-                    <img src="https://www.techcnews.com/wp-content/uploads/2019/09/Gundala-poster.jpg" class="card-img-top" alt="Gundala">
-                    <div class="card-body">
+                    <img src="${item.fields.image_m}" class="card-img-top" alt="Cover">
+                    <div class="card-body" align="center">
                         <h5 class="card-title" id="card-title${item.pk}">${item.fields.title}</h5>
                         <p class="card-text" id="card-author${item.pk}">${item.fields.author}</p>
+                        <p class="card-text" id="card-isbn${item.pk}">${item.fields.isbn}</p>
                         <p class="card-text" id="card-year${item.pk}">${item.fields.year}</p>
                         <p class="card-text" id="card-publisher${item.pk}">${item.fields.publisher}</p>
-                        <p class="card-text" id="card-initial-review${item.pk}">${item.fields.initial_review}</p>
+                        <a class="card-text" data-bs-toggle="modal" data-bs-target="#exampleModal${item.pk}">See Review</a>
                         <nav aria-label="..." class="pag-1">
                             <div class="div-rm">
                                 <button type="button" class="btn btn-warning" id="update-card" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="switchButtonUpdate(${item.pk})">Update</button>
@@ -97,6 +103,23 @@
                                 <button class="btn btn-danger" id="rm-btn" onclick="removeRequest(${item.pk})">Remove</button>
                             </div>
                         </nav>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="exampleModal${item.pk}" tabindex="-1" aria-labelledby="exampleModalLabel${item.pk}" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <div><h1 class="modal-title fs-5" id="exampleModalLabel${item.pk}">Short Review</h1></div>
+                            <div><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+                        </div>
+                        <div class="modal-body">
+                            <p id="card-initial-review${item.pk}">${item.fields.initial_review}</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" id="button_edit${item.pk}" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="switchButtonUpdate(${item.pk})">Edit</button>
+                        </div>
                     </div>
                 </div>
             </div>` 
@@ -121,23 +144,29 @@
         requestItem.forEach((item) => {
             if(item.pk === id) {
                 item_request = item
-                // console.log("hello")
+                console.log("hello")
             }
         })
 
         // An array of element IDs
-        const elementIds = ['title', 'author', 'year', 'publisher', 'initial_review', 'image_m'];
+        const elementIds = ['title', 'author', 'isbn', 'year', 'publisher', 'image_m'];
 
         // Loop through the element IDs and set the "value" attribute
         elementIds.forEach(elmId => {
             const inputElement = document.getElementById(elmId);
             if (inputElement) {
+                console.log(item_request.fields[elmId])
                 
                 inputElement.setAttribute('value', item_request.fields[elmId]);
-            }
+            } 
+            
+            document.getElementById('initial_review').innerHTML = item_request.fields['initial_review'];
+            
         });
 
+        document.getElementById("exampleModalLabel").innerHTML = "Editing Request..."
         document.getElementById("button_add").innerHTML = "Update Request"
+        console.log("ini id-nya" + item_request.pk)
         document.getElementById("button_add").onclick = function() {
             updateRequest(id); // Call your updateRequest function here
         };
@@ -145,10 +174,21 @@
 
     refreshRequest()
 
+    function toggleSubmit() {
+        const inputUser = document.getElementById('input-user');
+        const inputPass = document.getElementById('input-pass')
+        const submitButton = document.getElementById('login-btn');
+        if (inputUser.value.trim() === '' || inputPass.value.trim() === '') {
+            submitButton.setAttribute('disabled', 'disabled');
+        } else {
+            submitButton.removeAttribute('disabled');
+        }
+    }
+
     function switchButtonAdd() {
 
         // An array of element IDs
-        const elementIds = ['title', 'author', 'year', 'publisher', 'initial_review', 'image_m'];
+        const elementIds = ['title', 'author', 'isbn', 'year', 'publisher', 'image_m'];
 
         // The new value you want to set
         const newValue = '';
@@ -159,8 +199,10 @@
             if (inputElement) {
                 inputElement.setAttribute('value', newValue);
             }
+            document.getElementById('initial_review').innerHTML = '';
         });
-
+        
+        document.getElementById("exampleModalLabel").innerHTML = "New Request"
         document.getElementById("button_add").innerHTML = "Add Book Request"
     }
 
@@ -183,6 +225,7 @@
         if (target) {
             document.getElementById('card-title' + id).innerHTML = target.fields.title;
             document.getElementById('card-author' + id).innerHTML = target.fields.author;
+            document.getElementById('card-isbn' + id).innerHTML = target.fields.isbn;
             document.getElementById('card-year' + id).innerHTML = target.fields.year;
             document.getElementById('card-publisher' + id).innerHTML = target.fields.publisher;
             document.getElementById('card-initial-review' + id).innerHTML = target.fields.initial_review;

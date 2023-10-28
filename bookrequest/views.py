@@ -39,13 +39,14 @@ def create_request(request):
     if request.method == 'POST':
         title = request.POST.get("title")
         author = request.POST.get("author")
+        isbn = request.POST.get("isbn")
         year = request.POST.get("year")
         publisher = request.POST.get("publisher")
         initial_review = request.POST.get("initial_review")
         image = request.POST.get("image_m")
         user = request.user
 
-        new_request = BookReq(title=title, author=author, year=year, publisher=publisher, initial_review=initial_review, image_m=image, user=user)
+        new_request = BookReq(title=title, author=author, isbn=isbn, year=year, publisher=publisher, initial_review=initial_review, image_m=image, user=user)
         new_request.save()
 
         return HttpResponse(b"CREATED", status=201)
@@ -68,6 +69,7 @@ def update_request(request, id):
     if request.method == 'POST':
         request_item.title = request.POST.get("title")
         request_item.author = request.POST.get("author")
+        request_item.isbn = request.POST.get("isbn")
         request_item.year = request.POST.get("year")
         request_item.publisher = request.POST.get("publisher")
         request_item.initial_review = request.POST.get("initial_review")
