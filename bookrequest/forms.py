@@ -3,7 +3,7 @@ from django.forms import ModelForm
 from bookrequest.models import BookReq
 from django.contrib.auth.models import User
 
-class BookReqForm(forms.ModelForm):
+class BookReqForm(ModelForm):
     title = forms.CharField(widget=forms.TextInput(attrs={'class':'form-control'}))
     author = forms.CharField(widget=forms.TextInput(attrs={'class':'form-control'}))
     isbn = forms.CharField(widget=forms.TextInput(attrs={'class':'form-control'}))

@@ -9,35 +9,40 @@
     </div>
 </div>
 
-<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
                 <div><h1 class="modal-title fs-5" id="exampleModalLabel">Request New Book</h1></div>
-                <div><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+                <div><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="resetForm()"></button></div>
             </div>
             <div class="modal-body">
-                <form id="form" onsubmit="return false;">
+                <form class="" id="form" onsubmit="return false;">
                     {% csrf_token %}
                     <div class="mb-3">
                         <label for="title" class="col-form-label">Title</label>
-                        <input type="text" class="form-control" id="title" name="title" value=""></input>
+                        <input type="text" class="form-control" id="title" name="title" value="" required oninput="toggleSubmit()"></input>
+                        <div class="invalid-feedback">Please enter the book's title here.</div>
                     </div>
                     <div class="mb-3">
                         <label for="author" class="col-form-label">Author</label>
-                        <input type="text" class="form-control" id="author" name="author" value=""></input>
+                        <input type="text" class="form-control" id="author" name="author" value="" required oninput="toggleSubmit()"></input>
+                        <div class="invalid-feedback">Please enter the author's name here.</div>
                     </div>
                     <div class="mb-3">
                         <label for="isbn" class="col-form-label">ISBN</label>
-                        <input type="number" class="form-control" id="isbn" name="isbn" value=""></input>
+                        <input type="number" class="form-control" id="isbn" name="isbn" value="" required oninput="toggleSubmit()"></input>
+                        <div class="invalid-feedback">Please enter the book's ID here.</div>
                     </div>
                     <div class="mb-3">
                         <label for="year" class="col-form-label">Year</label>
-                        <input type="number" class="form-control" id="year" name="year" value=""></input>
+                        <input type="number" class="form-control" id="year" name="year" value="" required oninput="toggleSubmit()"></input>
+                        <div class="invalid-feedback">Please enter the book's publication year here.</div>
                     </div>
                     <div class="mb-3">
                         <label for="publisher" class="col-form-label">Publisher</label>
-                        <input type="text" class="form-control" id="publisher" name="publisher" value=""></input>
+                        <input type="text" class="form-control" id="publisher" name="publisher" value="" required oninput="toggleSubmit()"></input>
+                        <div class="invalid-feedback">Please enter the book's publisher here.</div>
                     </div>
                     <div class="mb-3">
                         <label for="initial_review" class="col-form-label">What's interesting about this book?</label>
@@ -50,14 +55,15 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="button_add" data-bs-dismiss="modal" onclick="">Add Book Request</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="resetForm()">Close</button>
+                <button type="submit" class="btn btn-primary" id="button_add" data-bs-dismiss="modal" onclick="addRequest()" disabled>Add Book Request</button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
+
     async function getRequestItem() {
         return fetch("{% url 'bookrequest:get_request_item_json' %}").then((res) => res.json())
     }
@@ -73,6 +79,94 @@
         document.getElementById("item-count").innerHTML = string
     }
 
+    function changeFilter(filter_str) {
+        console.log("hola")
+        document.getElementById("search-filter").innerHTML = filter_str
+    }
+
+    async function searchRequest() {
+        const requestItem = await getRequestItem()
+
+        let itemCount = 0
+        requestItem.forEach((item) => {
+            itemCount += 1
+        })
+
+        const filterBy = document.getElementById("search-filter").innerHTML;
+        const searchItem = document.getElementById("search-input").value;
+        let htmlString = `<p class="logged-user">Welcome {{name}}</p>
+        <P id="item-count">Your request: ${itemCount} book(s)</P>
+        <div class="input-group">
+            <button class="btn btn-outline-secondary dropdown-toggle" id="search-filter" type="button" data-bs-toggle="dropdown" aria-expanded="false">Select Field</button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="javascript:changeFilter('Title');" id="filter-title">Title</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="javascript:changeFilter('Author');" id="filter-author">Author</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="javascript:changeFilter('ISBN');" id="filter-isbn">ISBN</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="javascript:changeFilter('Year');" id="filter-year">Year</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="javascript:changeFilter('Publisher');" id="filter-publisher">Publisher</a></li>
+            </ul>
+            <input type="text" class="form-control" placeholder="Find my request" id="search-input">
+            <button class="btn btn-outline-primary" type="button" aria-expanded="false" onclick="searchRequest()">Search</button>
+        </div>`
+
+        if (filterBy != 'Fields' && searchItem != '') {
+            
+            requestItem.forEach((item) => {
+                console.log(filterBy.toLowerCase())
+                if (item.fields[String(filterBy).toLowerCase()] && item.fields[String(filterBy).toLowerCase()].toLowerCase().includes(String(searchItem).toLowerCase())) {
+                    // console.log("hello1");
+                    // console.log('Found matching item:', item);
+                    
+                    htmlString += `
+                    \n<div class="col-sm-6 col-md-4 col-lg-3" id="card${item.pk}">
+                        <div class="card h-100">
+                            <img src="${item.fields.image_m}" class="card-img-top" alt="Cover">
+                            <div class="card-body" align="center">
+                                <h5 class="card-title" id="card-title${item.pk}">${item.fields.title}</h5>
+                                <p class="card-text" id="card-author${item.pk}">${item.fields.author}</p>
+                                <p class="card-text" id="card-isbn${item.pk}">${item.fields.isbn}</p>
+                                <p class="card-text" id="card-year${item.pk}">${item.fields.year}</p>
+                                <p class="card-text" id="card-publisher${item.pk}">${item.fields.publisher}</p>
+                                <a class="card-text" data-bs-toggle="modal" data-bs-target="#exampleModal${item.pk}">See Review</a>
+                                <nav aria-label="..." class="pag-1">
+                                    <div class="div-rm">
+                                        <button type="button" class="btn btn-success" id="update-card" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="switchButtonUpdate(${item.pk})">Update</button>
+                                    </div>
+                                    <div class="div-rm">
+                                        <button class="btn btn-danger" id="rm-btn" onclick="removeRequest(${item.pk})">Remove</button>
+                                    </div>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal fade" id="exampleModal${item.pk}" tabindex="-1" aria-labelledby="exampleModalLabel${item.pk}" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-scrollable">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <div><h1 class="modal-title fs-5" id="exampleModalLabel${item.pk}">Short Review</h1></div>
+                                    <div><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="resetForm()"></button></div>
+                                </div>
+                                <div class="modal-body">
+                                    <p id="card-initial-review${item.pk}">${item.fields.initial_review}</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="resetForm()">Close</button>
+                                    <button type="button" class="btn btn-primary" id="button_edit${item.pk}" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="switchButtonUpdate(${item.pk})">Edit</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`
+                }
+            })
+            htmlString += '\n<a><button type="button" class="btn btn-outline-primary" id="create-card" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="switchButtonAdd()">Add New Book Request</button></a>'
+            document.getElementById("card-row").innerHTML = htmlString
+        }
+    }
+
     async function refreshRequest() {
         document.getElementById("card-row").innerHTML = ""
         const requestItem = await getRequestItem()
@@ -81,7 +175,23 @@
             itemCount += 1
         })
         let htmlString = `<p class="logged-user">Welcome {{name}}</p>
-        <P id="item-count">Your request: ${itemCount} book(s)</P>`
+        <P id="item-count">Your request: ${itemCount} book(s)</P>
+        <div class="input-group">
+            <button class="btn btn-outline-secondary dropdown-toggle" id="search-filter" type="button" data-bs-toggle="dropdown" aria-expanded="false">Select Field</button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="javascript:changeFilter('Title');" id="filter-title">Title</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="javascript:changeFilter('Author');" id="filter-author">Author</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="javascript:changeFilter('ISBN');" id="filter-isbn">ISBN</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="javascript:changeFilter('Year');" id="filter-year">Year</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="javascript:changeFilter('Publisher');" id="filter-publisher">Publisher</a></li>
+            </ul>
+            <input type="text" class="form-control" placeholder="Find my request" id="search-input">
+            <button class="btn btn-outline-primary" type="button" aria-expanded="false" onclick="searchRequest()">Search</button>
+        </div>`
 
         requestItem.forEach((item) => {
             htmlString += `
@@ -97,7 +207,7 @@
                         <a class="card-text" data-bs-toggle="modal" data-bs-target="#exampleModal${item.pk}">See Review</a>
                         <nav aria-label="..." class="pag-1">
                             <div class="div-rm">
-                                <button type="button" class="btn btn-warning" id="update-card" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="switchButtonUpdate(${item.pk})">Update</button>
+                                <button type="button" class="btn btn-success" id="update-card" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="switchButtonUpdate(${item.pk})">Update</button>
                             </div>
                             <div class="div-rm">
                                 <button class="btn btn-danger" id="rm-btn" onclick="removeRequest(${item.pk})">Remove</button>
@@ -111,20 +221,20 @@
                     <div class="modal-content">
                         <div class="modal-header">
                             <div><h1 class="modal-title fs-5" id="exampleModalLabel${item.pk}">Short Review</h1></div>
-                            <div><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+                            <div><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="resetForm()"></button></div>
                         </div>
                         <div class="modal-body">
                             <p id="card-initial-review${item.pk}">${item.fields.initial_review}</p>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="resetForm()">Close</button>
                             <button type="button" class="btn btn-primary" id="button_edit${item.pk}" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="switchButtonUpdate(${item.pk})">Edit</button>
                         </div>
                     </div>
                 </div>
             </div>` 
         })
-        htmlString += '\n<a><button type="button" class="btn btn-primary" id="create-card" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="switchButtonAdd()">Add New Book Request</button></a>'
+        htmlString += '\n<a><button type="button" class="btn btn-outline-primary" id="create-card" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="switchButtonAdd()">Add New Book Request</button></a>'
     
         document.getElementById("card-row").innerHTML = htmlString
     }
@@ -167,25 +277,36 @@
         document.getElementById("exampleModalLabel").innerHTML = "Editing Request..."
         document.getElementById("button_add").innerHTML = "Update Request"
         console.log("ini id-nya" + item_request.pk)
-        document.getElementById("button_add").onclick = function() {
-            updateRequest(id); // Call your updateRequest function here
-        };
+        if (document.getElementById("button_add").innerHTML === "Update Request") {
+            document.getElementById("button_add").onclick = function() {
+                updateRequest(id); // Call your updateRequest function here
+            };
+        }
+        
     }
 
     refreshRequest()
 
     function toggleSubmit() {
-        const inputUser = document.getElementById('input-user');
-        const inputPass = document.getElementById('input-pass')
-        const submitButton = document.getElementById('login-btn');
-        if (inputUser.value.trim() === '' || inputPass.value.trim() === '') {
+        const inputTitle = document.getElementById('title');
+        const inputAuthor = document.getElementById('author');
+        const inputIsbn = document.getElementById('isbn');
+        const inputYear = document.getElementById('year');
+        const inputPublisher = document.getElementById('publisher');
+        const submitButton = document.getElementById('button_add');
+        var target = document.getElementById("form");
+
+        if (inputTitle.value.trim() === '' || inputAuthor.value.trim() === '' || inputIsbn.value.trim() === '' || inputYear.value.trim() === '' || inputPublisher.value.trim() === '') {
             submitButton.setAttribute('disabled', 'disabled');
+            target.classList.add("was-validated");
         } else {
             submitButton.removeAttribute('disabled');
         }
     }
 
     function switchButtonAdd() {
+        var formTarget = document.getElementById("form");
+        formTarget.classList.remove("was-validated");
 
         // An array of element IDs
         const elementIds = ['title', 'author', 'isbn', 'year', 'publisher', 'image_m'];
@@ -204,16 +325,20 @@
         
         document.getElementById("exampleModalLabel").innerHTML = "New Request"
         document.getElementById("button_add").innerHTML = "Add Book Request"
+
+        if (document.getElementById("button_add").innerHTML === "Add Book Request") {
+            console.log("belloerror")
+            document.getElementById("button_add").onclick = addRequest
+        }
     }
 
-    
     function addRequest() {
         fetch("{% url 'bookrequest:create_request' %}", {
             method: "POST",
             body: new FormData(document.querySelector('#form'))
         }).then(refreshRequest)
 
-        document.getElementById("form").reset()
+        resetForm()
         return false
     }
 
@@ -233,6 +358,11 @@
             }
     }
 
+    function resetForm() {
+        document.getElementById("form").reset()
+        // console.log("yey")
+    }
+
     async function updateRequest(id) {
 
         let url="{% url 'bookrequest:update_request' '0' %}";
@@ -242,11 +372,16 @@
             body: new FormData(document.querySelector('#form')),
         }).then(countItem)
 
+        const changeBtn = document.getElementById("button_add")
+        changeBtn.innerHTML = "Add Book Request"
+        changeBtn.onclick = addRequest
+        
         updateCardFields(id)
-        document.getElementById("form").reset()
+        resetForm()
     }
 
     if(document.getElementById("button_add").innerHTML === "Add Book Request") {
+        console.log("belloerror")
         document.getElementById("button_add").onclick = addRequest
     }
     
