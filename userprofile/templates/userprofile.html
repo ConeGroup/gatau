@@ -159,7 +159,10 @@ function saveChanges() {
     method: "POST",
     body: formData,
   })
-    .then(response => response.json()).catch(error => {
+    .then(response => {
+    response.json();
+    showAlert('Username and Email Has Been Successfully Changed!','warning');
+        }).catch(error => {
       // Tangani kesalahan jika fetch gagal
       
       // Kembalikan teks awal jika terjadi kesalahan
