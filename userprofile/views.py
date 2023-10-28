@@ -14,7 +14,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import update_session_auth_hash
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest
 
 # Create your views here.
 
@@ -83,6 +83,7 @@ def change_password(request):
             return redirect('userprofile.html')
     else:
         form = PasswordChangeForm(request.user)
+    print("oeyy")
     return render(request, 'change_password.html', {'form': form})
 
 
@@ -94,8 +95,8 @@ def change_password_ajax(request):
         if form.is_valid():
             user = form.save()
             update_session_auth_hash(request, user)  # Ini biar session masih tetap aktif
-            print("oeyy")
-            return JsonResponse({'message': 'Password kamu berhasil diubah!'})
+            return HttpResponse(b"CREATED", status=201)
     else:
-        form = PasswordChangeForm(request.user)
-    return render(request, 'change_password.html', {'form': form})    
+        form = PasswordChangeForm(request.user)   
+     
+    return JsonResponse({'message': 'Invalid request.'}, status=400)
