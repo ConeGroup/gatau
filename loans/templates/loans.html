@@ -1,5 +1,9 @@
 {% extends 'base.html' %}
 
+{% load static}
+
+{% include './navbar.html' %}
+
 {% block content %}
 <style>
     /* Gaya untuk tabel */
@@ -11,14 +15,29 @@
     h3{
         text-align: center;
     }
-
+    
     .catalog {
         display: grid;
-        width: 100%;
-        grid-template-columns: repeat(4, 1fr); /* Membagi ruang menjadi 4 kolom yang sama lebar */
-        gap: 20px; /* Jarak antara kartu */
+        grid-template-columns: repeat(1, 1fr); /* 1 kolom untuk layar kecil */
+        gap: 10px;
     }
 
+    @media (min-width: 600px) {
+        .catalog {
+            grid-template-columns: repeat(2, 1fr); /* 2 kolom untuk layar sedang */
+        }
+    }
+
+    @media (min-width: 900px) {
+        .catalog {
+            grid-template-columns: repeat(3, 1fr); /* 3 kolom untuk layar besar */
+        }
+    }
+    @media (min-width: 1200px) {
+        .catalog {
+            grid-template-columns: repeat(4, 1fr); /* 3 kolom untuk layar besar */
+        }
+    }
     .card{
         width: 300px; /* 30% lebar layar */
         height: 450px;
@@ -27,21 +46,21 @@
         align-items: top;
         align-self: center;
         display: grid;
-        margin: 10px 5px 10px 5px; 
+        margin: 10px 10px 10px px; 
         vertical-align: top;
         border-radius: 10px;
         box-shadow: 0 15px 25px rgba(138, 155, 178, 0.882);;
     }
 
     .card-book{
-        width: 300px; /* 30% lebar layar */
-        height: 400px;
+        width: 300px;
+        height: 450px;
         margin: 1%; /* Ruang antara kartu */
         display: inline-block; /* Membuat kartu tampil secara horizontal */
         align-items: top;
         align-self: center;
         display: grid;
-        margin: 10px 5px 10px 5px; 
+        margin: 10px 10px 10px 10px; 
         vertical-align: top;
         border-radius: 10px;
         box-shadow: 0 15px 25px rgba(138, 155, 178, 0.882);;
@@ -84,6 +103,13 @@
     <div class="catalog" id="product_table"></div>
     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">Add Loan Book</button>
     <h3>List of available books</h3>
+    <div class="mb-3">
+        <label for="filter_year" class="col-form-label">Filter by Year:</label>
+        <input type="number" class="form-control" id="filter_year">
+    </div>
+    <button type="button" class="btn btn-primary" id="apply_filter">Apply Filter</button>
+    <p></p>
+    <button type="button" class="btn btn-primary" id="reset_filter">Reset Filter</button>
     <div class="catalog" id="book-cards"></div>
 </div>
 
@@ -184,9 +210,9 @@
             .then(() => {
                 document.getElementById("form").reset();
                 numberBookError.textContent = ""; // Hapus pesan kesalahan jika ada
-                $('#exampleModal').modal('hide'); // Tutup modal setelah berhasil menambahkan
-            })
-            .then(refreshProducts);
+            }).then(() => {
+                refreshProducts(); // Setelah menambahkan produk, panggil fungsi refreshProducts untuk menampilkan produk yang baru ditambahkan
+            });
         } else {
             // Tampilkan pesan kesalahan
             numberBookError.textContent = "Book numbers must be in the range 1-100";
@@ -217,34 +243,51 @@
         return fetch("{% url 'loans:get_book_json' %}").then((res) => res.json());
     }
 
-    async function refreshBookCard() {
+    async function refreshBookCard(filterYear) {
         document.getElementById("book-cards").innerHTML = "";
         const books = await getBook();
         let htmlString = '<div class="catalog row-cols-1 row-cols-md-4 mb-3 text-center">';
 
         books.forEach((book) => {
-            htmlString += `
-                <div class="col mb-3 ml-7">
-                    <div class="shadow mb-3 bg-body">
-                        <div class="card-book">
-                            <div class="card-body" width=100%>
-                                <h5 class="card-title font-weight-bold" style="text-shadow: 2px 2px 4 px rgba(0, 0, 0, 0)">
-                                <div class="image-container">
-                                    <img src="${book.fields.image_m}" alt="Book Cover">
+            // Periksa apakah tahun buku sesuai dengan filter
+            if (!filterYear || book.fields.year === filterYear) {
+                htmlString += `
+                    <div class="col mb-3 ml-7">
+                        <div class="shadow mb-3 bg-body">
+                            <div class="card-book">
+                                <div class="card-body" width=100%>
+                                    <h5 class="card-title font-weight-bold" style="text-shadow: 2px 2px 4 px rgba(0, 0, 0, 0)">
+                                    <div class="image-container">
+                                        <img src="${book.fields.image_m}" alt="Book Cover">
+                                    </div>
+                                    <h5 class="card-title">${book.fields.title}</h5>
+                                    <p class="card-text">Author: ${book.fields.author}</p>
+                                    <p class="card-text">Year: ${book.fields.year}</p>
+                                    <p class="card-text">Publisher: ${book.fields.publisher}</p>
+                                    <p class="card-text">Book Numbers: ${book.pk}</p>
                                 </div>
-                                <h5 class="card-title">${book.fields.title}</h5>
-                                <p class="card-text">Author: ${book.fields.author}</p>
-                                <p class="card-text">Year: ${book.fields.year}</p>
-                                <p class="card-text">Publisher: ${book.fields.publisher}</p>
                             </div>
                         </div>
                     </div>
-                </div>
-            `;
+                `;
+            }
         });
 
         document.getElementById("book-cards").innerHTML = htmlString;
     }
+
+    document.getElementById("apply_filter").onclick = function() {
+        const filterYear = parseInt(document.getElementById("filter_year").value);
+        refreshBookCard(filterYear);
+    };
+
+
+    function resetFilter() {
+        document.getElementById("filter_year").value = ""; // Kosongkan input filter
+        refreshBookCard(); // Panggil fungsi refreshBookCard tanpa parameter filter
+    }
+    document.getElementById("reset_filter").onclick = resetFilter;
+
 
     // Panggil refreshBookCard() untuk menampilkan kartu buku saat halaman dimuat.
     refreshBookCard();
