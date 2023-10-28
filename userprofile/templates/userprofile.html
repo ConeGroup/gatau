@@ -196,6 +196,9 @@ function savePassword() {
         if (!response.ok) {
             throw new Error('Password Error');
         }
+        else {
+            showAlert('Password Has Been Successfully Changed!','warning');
+        }
         return response.text();
     })
     .then(data => {
