@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+
+{% block meta %}
+    <title>Review Sheet</title>
+{% endblock meta %}
+
+{% block content %}
+<div class="global-container-reg">
+    <div class="card reg-form">
+        <div class="card-body-login">
+            <h1 class="card-title text-center">Review Sheet</h1>
+        </div>
+            
+        <div class="card-text-reg">
+            <form method="POST" action="">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label for="exampleInputEmail1" class="form-label">Username</label>
+                    {{form.username}}
+                </div>
+                <div class="mb-3">
+                    <label for="exampleInputEmail1" class="form-label">Email</label>
+                    {{form.email}}
+                </div>
+                <div class="mb-3">
+                    <label for="exampleInputPassword1" class="form-label">Password</label>
+                    {{form.password1}}
+                </div>
+                <div class="mb-3">
+                    <label for="exampleInputPassword2" class="form-label">Confirm Password</label>
+                    {{form.password2}}
+                </div>
+                <div class="mb-3">
+                    Already have an account? <button data-bs-toggle="modal" class="reg-link" type="button" data-bs-target="#exampleModal">Login Here</button>
+                </div>
+                {% if form.errors %}
+                    <div class="errorlist">
+                        {{ form.custom_error_display|safe }}
+                    </div>
+                {% endif %}
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary" value="Register">Register</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div><h1 class="modal-title fs-5" id="exampleModalLabel">Welcome back!</h1></div>
+                <div><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+            </div>
+            <div class="modal-body">
+                <form id="form" method="POST" action="{% url 'home' %}" onsubmit="return false;">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <input type="text" class="form-control" id="input-user" name="username", placeholder="Username" required oninput="toggleSubmit()"></input>
+                    </div>
+                    <div class="mb-3">
+                        <input type="password" class="form-control" id="input-pass" name="password", placeholder="Password" required oninput="toggleSubmit()"></input>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <!-- <div class="flash-message text-center">
+                    {% if messages %}
+                        {% for message in messages %}
+                            {{ message }}
+                        {% endfor %}
+                    {% endif %}   
+
+                </div>   -->
+                <div>
+                    Don't have an account yet? <a href="{% url 'register' %}" class="reg-link">Register Here</a>
+                    <div class="flash-message text-center">
+                        {% if messages %}
+                            {% for message in messages %}
+                                {{ message }}
+                            {% endfor %}
+                        {% endif %}   
+                    </div>       
+                </div>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary" id="login-btn" data-bs-dismiss="modal" disabled onclick="login()">Login</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    async function refreshUser() {
+        console.log("helloerror")
+        fetch("{% url 'user_home' %}")
+        window.location.href="{% url 'user_home' %}";
+    }
+
+    function toggleSubmit() {
+        const inputUser = document.getElementById('input-user');
+        const inputPass = document.getElementById('input-pass')
+        const submitButton = document.getElementById('login-btn');
+        if (inputUser.value.trim() === '' || inputPass.value.trim() === '') {
+            submitButton.setAttribute('disabled', 'disabled');
+        } else {
+            submitButton.removeAttribute('disabled');
+        }
+    }
+
+    function login() {
+        console.log("hello");
+        fetch("{% url 'login' %}", {
+            method: "POST",
+            body: new FormData(document.querySelector('#form'))
+        }).then(refreshUser)
+        
+        document.getElementById("form").reset()
+        return false
+    }
+
+</script>
+
+{% endblock content %}

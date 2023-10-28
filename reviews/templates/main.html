@@ -1,0 +1,482 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% include 'navbar.html' %}
+
+{% block content %}
+
+    <style>
+        #book_card {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .card-title {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
+        .container-user-review {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: rgb(225, 113, 33);
+            text-align: center;
+            padding: 100px;
+        }
+
+        </style>
+        <div class="d-flex justify-content-center align-self-center" style="height: 100vh;justify-content: center;align-items: center;">
+            <div class="jumbotron">
+                <h1 class="display-2">Review as many books as you can!</h1>
+                <p class="lead">You're {{total_reviews}}% through the Book Review track. Keep up the good work! 🚀</p>
+                <div class="progress" style="max-height: 40px;">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow=total_reviews aria-valuemin="0" aria-valuemax="100" style="width:{{ total_reviews }}%;"></div>
+                </div>
+                <hr class="my-4">
+                <p class="lead">
+                    <div class="action-review-btn">
+                        <a class="btn btn-primary btn-lg" role="button" href="{% url 'reviews:review_page' %}">Start Reviewing</a>
+                    </div>
+                </p>
+            </div>
+        </div>
+    <div class="col-lg-7 offset-lg-2 mt-5">
+x
+        </div>
+        <div class="container mb-5">
+            <h2>Your reviews so far :D</h2>
+            <div>
+                <div id="user_reviews"></div>
+            </div>
+
+        </div>
+
+        <!-- KATALOG -->
+        <div class="book_reviews col-lg-7 offset-lg-2">
+            <h2>Book Reviews</h2>
+            <div class='row' id="book_card"></div>
+        </div>
+    </div>
+
+
+        <div class="modal" id="editReviewModal" tabindex="-1" role="dialog" aria-labelledby="editReviewModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editReviewModalLabel">Edit Review</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editReviewForm" method="post">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label for="editRating">Rating:</label>
+                                <input type="number" name="editRating" id="editRating" value="{{ review.rating }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="book_review_desc">Review:</label>
+                                <textarea name="editDeskripsi" id="editDeskripsi"></textarea>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="edit_is_recommended" id="edit_is_recommended" {% if review.is_recommended %}checked{% endif %}>
+                                <label class="form-check-label" for="edit_is_recommended">I recommend this book</label>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button id="saveEditReviewButton" type="button" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+        
+        <!-- <div class="modal fade" id="reviewByWidget" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Review</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="form" onsubmit="return false;">
+                        {% csrf_token %}
+                            <label class="form-check-label" for="is_recommended">Have you read this book?</label>
+                            <div class="btn-group" data-toggle="buttons">
+                                <button type="button" class="btn btn-primary" id="start-review" data-bs-dismiss="modal">Yes</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                            
+                            </div>                       
+                         </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="add_review_btn" data-bs-dismiss="modal">Add Review</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div> -->
+
+        <div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">Review Sheet</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <h5 class="card-text font-weight-bold" style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);" id="reviewModalTitle"></h5>
+                        <div class="image-container-modal">
+                            <img id="reviewModalCover" alt="Book Cover" style="width: 106px; height: 160px;">
+                        </div>
+                        <p class="card-text" id="reviewModalAuthor"></p>
+                        <p class="btn bg-primary" id="reviewModalYear"></p>
+                        <small class="text-muted" id="reviewModalISBN"></small>
+                        <small class="text-muted" id="reviewModalBookId"></small>
+                        <form id="form" onsubmit="return false;">
+                            {% csrf_token %}
+                            <div class="form-group mb-3">
+                                <label for="rating">Book Ratings</label>
+                                <input type="number" class="form-control" id="rating" name="rating" step="0.1" min="0" max="5" required>
+                            </div>
+                            <div class="form-group mb-3">
+                                <p>What are your thoughts about this book?</p>
+                                <textarea class="form-control" id="book_review_desc" name="book_review_desc" required></textarea>
+                            </div>
+                            <div class="form-group mb-3">
+                                <p>Would you recommend this book?</p>
+                                <div class="btn-group" data-toggle="buttons">
+                                    <label class="btn btn-primary">
+                                        <input type="radio" name="is_recommended" value="yes" checked> Yes
+                                    </label>
+                                    <label class="btn btn-secondary">
+                                        <input type="radio" name="is_recommended" value="no"> No
+                                    </label>
+                                </div>                       
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" id="add_review_btn" data-bs-dismiss="modal">Add Review</button>
+                    </div>
+                </div>
+            </div>
+
+
+        <!-- Notification Modal -->
+        <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="notificationModalLabel">Notification</h5>
+                </div>
+                <div class="modal-body" id="notificationMessage">
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+  
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+
+
+    <script>
+        async function getBooks() {
+            return fetch("{% url 'reviews:get_book_json' %}").then((res) => res.json())
+        }
+        async function getReviews() {
+            return fetch("{% url 'reviews:get_review_json' %}").then((res) => res.json())
+        }
+        // async function getReviewByUser() {
+            //     return fetch("{% url 'reviews:get_review_by_user_json' %}").then((res) => res.json())
+        // }
+        async function getBookById(idBuku) {
+            const url = "/reviews/get-book-by-id/" + idBuku; // Replace with the correct URL
+            return fetch(`/reviews/get-book-by-id/${idBuku}`).then((res) => res.json());
+        }
+
+
+    async function openReviewModalWithBookData(bookTitle, bookAuthor, bookYear, bookISBN, bookCoverURL, bookId) {
+        document.getElementById('reviewModalBookId').value = bookId;
+        document.getElementById('reviewModalTitle').textContent = bookTitle;
+        document.getElementById('reviewModalCover').src = bookCoverURL;
+        document.getElementById('reviewModalAuthor').textContent = bookAuthor;
+        document.getElementById('reviewModalYear').textContent = bookYear;
+        document.getElementById('reviewModalISBN').textContent = "ISBN : " + bookISBN;
+        $('#reviewModal').modal('show');
+    }
+
+    const placeholderImageUrl = "{% static 'BLANK.png' %}";
+
+    async function refreshBookReviewCards() {
+        document.getElementById("book_card").innerHTML = "";
+        const books = await getBooks();
+        const reviews = await getReviews();
+        let htmlString = ` <div class="row row-cols-1 row-cols-md-2 mb-3 text-center">`;
+
+        books.forEach((book) => {
+            const bookImageUrl = getBookImageUrl(book);
+            htmlString += `
+                <div class="col mb-4">
+                    <div class="shadow mb-3 bg-body">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-sm-4">
+                                        <div class="image-container ">
+                                            <img src="${bookImageUrl}" alt="Book Cover" style="width: 106px; height: 160px;">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-8">
+                                        <h5 class="card-title font-weight-bold" style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);">${book.fields.title}</h5>
+                                        <p class="card-text">by ${book.fields.author}</p>
+                                        <p class="btn bg-primary">${book.fields.year}</p>
+        
+                                        <button
+                                            type="button"
+                                            class="btn btn-primary review-button"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#reviewModal"
+                                            data-book-title="${book.fields.title}"
+                                            data-book-cover="${bookImageUrl}"
+                                            data-book-author="${book.fields.author}"
+                                            data-book-year="${book.fields.year}"
+                                            data-book-ISBN="${book.fields.ISBN}"
+                                            data-book-id="${book.pk}"
+                                        >
+                                            Review this Book
+                                        </button>
+        
+                                        <div class="card-footer">
+                                            <small class="text-muted">ISBN ${book.fields.ISBN}</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" data-base-url="{% url 'reviews:book_details' 0 %}">
+                                    <button type="button" class="detail-button btn btn-primary" data-book-id="${book.pk}">View Book Details</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                `;
+        });
+
+        htmlString += `</div>`;
+        document.getElementById("book_card").innerHTML = htmlString;
+
+        const reviewButtons = document.querySelectorAll('.review-button');
+        reviewButtons.forEach((button) => {
+            button.addEventListener('click', function () {
+                const bookTitle = this.getAttribute('data-book-title');
+                const bookCoverURL = this.getAttribute('data-book-cover');
+                const bookAuthor = this.getAttribute('data-book-author');
+                const bookYear = this.getAttribute('data-book-year');
+                const bookISBN = this.getAttribute('data-book-ISBN');
+                const bookId = this.getAttribute('data-book-id');
+
+                openReviewModalWithBookData(bookTitle, bookAuthor, bookYear, bookISBN, bookCoverURL, bookId);
+            });
+        });
+
+            $('.detail-button').on('click', function() {
+                const bookId = this.getAttribute('data-book-id');
+                const baseUrl = $('div[data-base-url]').data('base-url');
+                const url = baseUrl.replace('0', bookId);
+                window.location.href = url;
+        });
+
+
+    }
+    refreshBookReviewCards()
+
+// Define an asynchronous function to fetch user reviews
+async function getReviewByUser() {
+    // Make an AJAX request to fetch user reviews
+    const response = await fetch("{% url 'reviews:get_review_by_user_json' %}");
+    if (response.ok) {
+        const reviews = await response.json();
+        return reviews;
+    } else {
+        // Handle errors if the request fails
+        console.error('Failed to fetch user reviews');
+        return [];
+    }
+}
+async function refreshUserReviewCards() {
+    const userReviewsContainer = document.getElementById('user_reviews');
+    userReviewsContainer.innerHTML = ''; 
+
+    try {
+        const response = await fetch("{% url 'reviews:get_review_by_user_json' %}");
+        if (response.ok) {
+            const data = await response.json();
+            // const userReviews = data.reviews;
+
+                let htmlString = `<div class="row row-cols-1 row-cols-md-4 mb-3 text-center">`;
+                data.reviews.forEach((review) => {
+
+                    htmlString += `
+                        <div class="col mb-3 ml-7">
+                            <div class="shadow mb-3 bg-body">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title font-weight-bold" style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);">${review.book_title}</h5>
+                                        <p class="card-text">Rating: ${review.rating}</p>
+                                        <p class="card-text">${review.book_review_desc}</p>
+                                        <p class="card-text">${review.is_recommended}</p>
+                                        <div class="card-footer">
+                                            <small class="text-muted">Date Added ${review.date_added}</small>
+                                            <button class="btn btn-primary edit-review" data-review-id="${ review.id }">Edit Review </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                htmlString += `</div>`;
+                userReviewsContainer.innerHTML = htmlString;
+
+                const editReviewButtons = document.querySelectorAll('.edit-review');
+
+                editReviewButtons.forEach(button => {
+                    button.addEventListener('click', async () => {
+                        const reviewId = button.getAttribute('data-review-id');
+
+                        const response = await fetch(`/reviews/get_review_by_id/${reviewId}/`);
+                        if (response.ok) {
+                            const review = await response.json();
+                            document.getElementById('editRating').value = review.rating;
+                            document.getElementById('editDeskripsi').value = review.book_review_desc; 
+                            document.getElementById('edit_is_recommended').value = review.is_recommended; 
+
+                            // Show the modal for editing
+                            $('#editReviewModal').modal('show');
+                        } else {
+                            console.error('Failed to fetch review data for editing.');
+                        }
+                    });
+                });
+
+        } else {
+            console.error('Failed to fetch user reviews.');
+        }
+    } catch (error) {
+        console.error('An error occurred while fetching user reviews:', error);
+    }
+}
+
+refreshUserReviewCards();
+
+
+    function getBookImageUrl(book) {
+
+        const imageUrl = book.fields.image_m;
+
+        const img = new Image();
+
+        img.src = imageUrl;
+
+        img.onload = function () {
+            if (img.width <= 5 || img.height <= 5) {
+                img.src = placeholderImageUrl;
+            }
+         };
+
+        return img.src;
+    }
+
+    async function addReview() {
+        const bookId = document.getElementById('reviewModalBookId').value;
+        const data = new FormData(document.querySelector('#form'));
+        data.append('book_id', bookId); 
+
+        fetch("{% url 'reviews:add_review_ajax' %}", {
+                method: "POST",
+                body: data
+            }).then((response) => {
+                if (response.status === 201) {
+                    displayNotification('Your review has been successfully added!');
+                    refreshBookCards();
+                    document.getElementById("form").reset();
+                } else {
+                    displayNotification('Failed to add review :( Please try again.');
+                }
+                })
+                .catch((error) => {
+                    displayNotification('An error occurred. Please try again.');
+                });
+            return false
+        }
+
+        document.getElementById("add_review_btn").onclick = addReview
+
+    function displayNotification(message) {
+        const notificationMessage = document.getElementById('notificationMessage');
+        notificationMessage.textContent = message;
+        $('#notificationModal').modal('show');
+    }
+    
+
+    function handleSaveChanges(reviewId) {
+        const editReviewForm = document.getElementById('editReviewForm');
+        const formData = new FormData(editReviewForm);
+
+        fetch(`/reviews/update-review/${reviewId}/`, {
+            method: 'POST',
+            body: formData,
+        })
+        .then(response => {
+            if (response.ok) {
+                $('#editReviewModal').modal('hide');
+                refreshUserReviewCards(); // Assuming you have a function for refreshing the review list
+            } else {
+                console.error('Failed to update the review.');
+            }
+        })
+        .catch(error => {
+            console.error('An error occurred while updating the review:', error);
+        });
+    }
+
+    const saveEditReviewButton = document.getElementById('saveEditReviewButton');
+    saveEditReviewButton.addEventListener('click', () => {
+        const reviewId = this.getAttribute('data-review-id');
+        handleSaveChanges(reviewId);
+    });
+
+
+    
+    // function addReviewForms() {
+    //     const bookId = document.getElementById('reviewModalBookId').value;
+    //     const data = new FormData(document.querySelector('#start-review'));
+    //     data.append('book_id', bookId); 
+
+    //     fetch("{% url 'reviews:add_review_form' %}", {
+    //             method: "POST",
+    //             body: data
+    //         }).then(refreshBookCards)
+
+    //         document.getElementById("start-review").reset()
+    //         return false
+    //     }
+
+    //     document.getElementById("start-review").onclick = addReviewForms
+        
+
+    </script>
+
+{% endblock content %}

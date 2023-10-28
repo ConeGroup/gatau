@@ -59,3 +59,6 @@ def logout_user(request):
     logout(request)
     messages.success(request, "You have been logged out")
     return redirect('home')
+
+def show_review_page(request):
+    return HttpResponseRedirect(reverse('reviews:show_main'))
