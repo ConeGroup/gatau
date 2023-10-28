@@ -19,6 +19,15 @@
             text-overflow: ellipsis;
             max-width: 100%;
         }
+        .step-labels {
+            display: flex;
+            margin-top: 5px;
+        }
+
+        .step-labels span {
+            flex: 1;
+        }
+
 
     </style>
         <div class="col-lg-7 offset-lg-2 mt-5">
@@ -66,19 +75,31 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <h5 class="card-text font-weight-bold" style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);" id="reviewModalTitle"></h5>
-                    <div class="image-container-modal">
+                    <h5 class="card-text font-weight-bold text-center" style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);" id="reviewModalTitle"></h5>
+                    <div class="image-container-modal my-3 text-center">
                         <img id="reviewModalCover" alt="Book Cover" style="width: 106px; height: 160px;">
                     </div>
-                    <p class="card-text" id="reviewModalAuthor"></p>
-                    <p class="btn bg-primary" id="reviewModalYear"></p>
-                    <small class="text-muted" id="reviewModalISBN"></small>
+                    <table class="table table-hover">
+                        <tr>
+                            <td>Author</td>
+                            <td id="reviewModalAuthor"></td>
+                        </tr>
+                        <tr>
+                            <td>Year</td>
+                            <td id="reviewModalYear"></td>
+                        </tr>
+                        <tr>
+                            <td>ISBN</td>
+                            <td id="reviewModalISBN"></td>
+                        </tr>
+                    </table>
+
                     <small class="text-muted" id="reviewModalBookId"></small>
                     <form id="form" onsubmit="return false;">
                         {% csrf_token %}
                         <div class="form-group mb-3">
-                            <label for="rating">Book Ratings</label>
-                            <input type="number" class="form-control" id="rating" name="rating" step="0.1" min="0" max="5" required>
+                            <label for="rating" class="form-label">Book Rating on scale 0-5</label>
+                            <input type="range" class="form-range" min="0" max="5" id="rating" name="rating" required>
                         </div>
                         <div class="form-group mb-3">
                             <p>What are your thoughts about this book?</p>
@@ -136,7 +157,7 @@
         document.getElementById('reviewModalCover').src = bookCoverURL;
         document.getElementById('reviewModalAuthor').textContent = bookAuthor;
         document.getElementById('reviewModalYear').textContent = bookYear;
-        document.getElementById('reviewModalISBN').textContent = "ISBN : " + bookISBN;
+        document.getElementById('reviewModalISBN').textContent = bookISBN;
         $('#reviewModal').modal('show');
     }
 
@@ -158,8 +179,9 @@
                                 <div class="image-container ">
                                     <img src="${bookImageUrl}" alt="Book Cover" style="width: 106px; height: 160px;">
                                 </div>
-                                <p class="card-text">${book.fields.author}</p>
-                                <p class="btn bg-primary">${book.fields.year}</p>
+                                <p></p>
+                                <h6 class="card-text">${book.fields.author}</h6>
+                                <p>${book.fields.year}</p>
 
                                 <button
                                     type="button"
@@ -175,6 +197,7 @@
                                 >
                                     Review this Book
                                 </button>
+                                <p></p>
 
                                 <div class="card-footer">
                                     <small class="text-muted">ISBN ${book.fields.ISBN}</small>

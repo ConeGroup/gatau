@@ -146,7 +146,9 @@ def get_review_by_user_json(request):
     return JsonResponse({'reviews': review_data})
 
 def get_book_json(request):
-    books = Book.objects.all()
+    user_reviewed_books = Review.objects.filter(user=request.user).values_list('book', flat=True)
+    books = Book.objects.exclude(pk__in=user_reviewed_books)
+
     return HttpResponse(serializers.serialize('json', books))
 
 def get_review_json(request):
@@ -170,7 +172,6 @@ def add_review_ajax(request):
 
 
         book = Book.objects.get(pk = book_id)
-        print(book.title)
 
         # Create a new Review object
         review = Review(

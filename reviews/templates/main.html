@@ -2,9 +2,9 @@
 
 {% load static %}
 
-{% include 'navbar.html' %}
 
 {% block content %}
+    {% include 'navbar.html' %}
 
     <style>
         #book_card {
@@ -47,10 +47,10 @@
             </div>
         </div>
     <div class="col-lg-7 offset-lg-2 mt-5">
-x
+
         </div>
         <div class="container mb-5">
-            <h2>Your reviews so far :D</h2>
+            <h1 class="display-5">Check out your reviews so far</h1>
             <div>
                 <div id="user_reviews"></div>
             </div>
@@ -58,8 +58,8 @@ x
         </div>
 
         <!-- KATALOG -->
-        <div class="book_reviews col-lg-7 offset-lg-2">
-            <h2>Book Reviews</h2>
+        <div class="book_reviews container">
+            <h1 class="display-5">Book Catalog</h1>
             <div class='row' id="book_card"></div>
         </div>
     </div>
@@ -242,7 +242,6 @@ x
                                     <div class="col-sm-8">
                                         <h5 class="card-title font-weight-bold" style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);">${book.fields.title}</h5>
                                         <p class="card-text">by ${book.fields.author}</p>
-                                        <p class="btn bg-primary">${book.fields.year}</p>
         
                                         <button
                                             type="button"
@@ -259,13 +258,12 @@ x
                                             Review this Book
                                         </button>
         
-                                        <div class="card-footer">
-                                            <small class="text-muted">ISBN ${book.fields.ISBN}</small>
-                                        </div>
                                     </div>
                                 </div>
-                                <div class="row" data-base-url="{% url 'reviews:book_details' 0 %}">
-                                    <button type="button" class="detail-button btn btn-primary" data-book-id="${book.pk}">View Book Details</button>
+                                <div class="card-footer mt-3">
+                                    <div class='row' data-base-url="{% url 'reviews:book_details' 0 %}">
+                                        <button type="button" class="detail-button btn btn-primary" data-book-id="${book.pk}">View Book Details</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -302,19 +300,7 @@ x
     }
     refreshBookReviewCards()
 
-// Define an asynchronous function to fetch user reviews
-async function getReviewByUser() {
-    // Make an AJAX request to fetch user reviews
-    const response = await fetch("{% url 'reviews:get_review_by_user_json' %}");
-    if (response.ok) {
-        const reviews = await response.json();
-        return reviews;
-    } else {
-        // Handle errors if the request fails
-        console.error('Failed to fetch user reviews');
-        return [];
-    }
-}
+
 async function refreshUserReviewCards() {
     const userReviewsContainer = document.getElementById('user_reviews');
     userReviewsContainer.innerHTML = ''; 
@@ -323,23 +309,40 @@ async function refreshUserReviewCards() {
         const response = await fetch("{% url 'reviews:get_review_by_user_json' %}");
         if (response.ok) {
             const data = await response.json();
-            // const userReviews = data.reviews;
+            if (data.reviews.length === 0) {
+                userReviewsContainer.innerHTML = "<p>You haven't write any review, yet. </p>";
+            } else {
 
-                let htmlString = `<div class="row row-cols-1 row-cols-md-4 mb-3 text-center">`;
+                let htmlString = `<div class="row row-cols-1 row-cols-md-3 mb-3 text-center">`;
                 data.reviews.forEach((review) => {
+                    let desc = review.book_review_desc
 
                     htmlString += `
                         <div class="col mb-3 ml-7">
                             <div class="shadow mb-3 bg-body">
                                 <div class="card">
                                     <div class="card-body">
-                                        <h5 class="card-title font-weight-bold" style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);">${review.book_title}</h5>
+                                        <h4 class="card-title font-weight-bold">${review.book_title}</h4>
                                         <p class="card-text">Rating: ${review.rating}</p>
-                                        <p class="card-text">${review.book_review_desc}</p>
-                                        <p class="card-text">${review.is_recommended}</p>
-                                        <div class="card-footer">
+
+                                        
+                                        <p class="card-text">
+                                            <span class="book-description">
+                                                ${desc.slice(0, 200)}
+                                                ${desc.length > 200 ?
+                                                    `<p><a href="#" class="show-more-link" data-bs-toggle="collapse" data-bs-target="#collapseDesc${review.id}">Show more</a><p>` :
+                                                    ''
+                                                }
+                                            </span>
+                                        </p>
+                                        <div id="collapseDesc${review.id}" class="collapse">
+                                            <p class="card-text">${review.book_review_desc}</p>
+                                        </div>
+
+                                        <p class="card-text">You ${review.is_recommended ? 'recommend' : 'did not recommend'} this</p>
+                                        <button class="btn btn-primary edit-review" data-review-id="${ review.id }">Edit Review </button>
+                                        <div class="card-footer mt-3">
                                             <small class="text-muted">Date Added ${review.date_added}</small>
-                                            <button class="btn btn-primary edit-review" data-review-id="${ review.id }">Edit Review </button>
                                         </div>
                                     </div>
                                 </div>
@@ -370,7 +373,13 @@ async function refreshUserReviewCards() {
                         }
                     });
                 });
-
+                const showMoreLinks = document.querySelectorAll('.show-more-link');
+                showMoreLinks.forEach(link => {
+                    link.addEventListener('click', (event) => {
+                        event.preventDefault();
+                    });
+                });
+            }
         } else {
             console.error('Failed to fetch user reviews.');
         }

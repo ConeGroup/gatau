@@ -8,6 +8,7 @@
   rel="stylesheet"
   href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
     />
+</head>
     <div class="col-lg-7 offset-lg-2 mt-5">
         <button class="btn btn-primary hBack" type="button">Button</button> 
         <h1 class="display-5">Book Details</h1>
@@ -20,8 +21,20 @@
             </div>
             <div class="col-sm-8">
                 <h1 class="display-4">{{ book.title }}</h1>
-                <h5>Author: {{ book.author }}</h5>
-                <h5>Year: {{ book.year }}</h5>
+                <table>
+                    <tr>
+                        <td>Author</td>
+                        <td>{{ book.author }}</td>
+                    </tr>
+                    <tr>
+                        <td>Year</td>
+                        <td>{{ book.year }}</td>
+                    </tr>
+                    <tr>
+                        <td>ISBN</td>
+                        <td>{{ book.ISBN }}</td>
+                    </tr>
+                </table>
             </div>
         </div>
         <div class="row">
@@ -36,7 +49,7 @@
                             
                             <p class="card-text">{{review.book_review_desc}}</p>
                             {% if review.is_recommended %}
-                            <p class="card-text">{{user.username}} recommend this!</p>
+                            <p class="card-text">{{review.user.username}} recommend this!</p>
                             {% else %}
                             <p class="card-text">{{review.user.username}} doesn't recommend this</p>
                             {% endif %}
@@ -54,10 +67,6 @@
 
 
     <script>
-
-
-
-
         const starRatingContainer = document.getElementById('star-rating');
 
         function generateStarRating(rating) {
@@ -66,8 +75,6 @@
                 if (i <= rating) {
                     stars += '<i class="fas fa-star"></i>';
                 } else {
-
-</head>
                     stars += '<i class="far fa-star"></i>';
                 }
             }
