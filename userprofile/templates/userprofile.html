@@ -1,0 +1,202 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div id="success-message" style="color: green;"></div>
+<div id="error-message" style="color: red;"></div>
+
+<main id="main" class="main">
+
+    <div class="pagetitle" style="display: flex; flex-direction: column; align-items: center;">
+        <h1>Profile</h1>
+        <nav>
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+            <li class="breadcrumb-item">Users</li>
+            <li class="breadcrumb-item active">Profile</li>
+          </ol>
+        </nav>
+      </div><!-- End Page Title -->
+      
+
+    <section class="section profile">
+      <div class="row">
+        <div class="col-xl-4">
+
+          <div class="card">
+            <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
+
+              <h2 id ="usernametext">{{user.username}}</h2>
+            </div>
+          </div>
+
+        </div> 
+
+        <div class="col-xl-8">
+
+          <div class="card">
+            <div class="card-body pt-3">
+              <!-- Bordered Tabs -->
+              <ul class="nav nav-tabs nav-tabs-bordered" role="tablist">
+
+                <li class="nav-item" role="presentation">
+                  <button id="button1" class="nav-link active" data-bs-toggle="tab" data-bs-target="#profile-overview" aria-selected="true" role="tab">Overview</button>
+                </li>
+
+                <li class="nav-item" role="presentation">
+                  <button id="button2" class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-edit" aria-selected="true" tabindex="-1" role="tab">Edit Profile</button>
+                </li>
+
+
+                <li class="nav-item" role="presentation">
+                  <button id="button4" class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-change-password" aria-selected="false" tabindex="-1" role="tab">Change Password</button>
+                </li>
+
+              </ul>
+              <div class="tab-content pt-2">
+
+                <div class="tab-pane fade show active profile-overview" id="profile-overview" role="tabpanel">
+
+                  <h5 class="card-title">Profile Details</h5>
+
+                  <div class="row">
+                    <div class="col-lg-3 col-md-4 label ">User Name</div>
+                    <div id="usernametextprofiledetails" class="col-lg-9 col-md-8">{{user.username}}</div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-lg-3 col-md-4 label">Email</div>
+                    <div id="useremailtextprofiledetails" class="col-lg-9 col-md-8">{{user.email}}</div>
+                  </div>
+
+                </div>
+
+                <div class="tab-pane fade profile-edit pt-3" id="profile-edit" role="tabpanel">
+
+                  <!-- Profile Edit Form -->
+                  <form id="edit-profile-form">
+                    {% csrf_token %}
+                    <div class="row mb-3">
+                      <label for="username" class="col-md-3 col-form-label">User Name</label>
+                      <div class="col-md-9">
+                        <input id="inputusername" type="text" class="form-control" id="username" name="username" value="{{user_form.username}}">
+                      </div>
+                    </div>
+                    <div class="row mb-3">
+                      <label for="email" class="col-md-3 col-form-label">Email</label>
+                      <div class="col-md-9">
+                        <input id="inputuseremail" type="text" class="form-control" id="email" name="email" value="{{user_form.email}}">
+                      </div>
+                    </div>
+                    <div class="text-center">
+                      <button type="button" class="btn btn-primary" onclick="saveChanges()">Save Changes</button>
+                    </div>
+                  </form>
+
+                  </div>
+
+
+
+                <div class="tab-pane fade pt-3" id="profile-change-password" role="tabpanel">
+                  <!-- Change Password Form -->
+                  <form id="change-password-form">
+                    {% csrf_token %}
+                    <div class="row mb-3">
+                      <label for="id_old_password" class="col-md-4 col-lg-3 col-form-label">Current Password</label>
+                      <div class="col-md-8 col-lg-9">
+                        <input name="old_password" type="password" class="form-control" id="id_old_password">
+                      </div>
+                    </div>
+
+                    <div class="row mb-3">
+                      <label for="id_new_password1" class="col-md-4 col-lg-3 col-form-label">New Password</label>
+                      <div class="col-md-8 col-lg-9">
+                        <input name="new_password1" type="password" class="form-control" id="id_new_password1">
+                      </div>
+                    </div>
+
+                    <div class="row mb-3">
+                      <label for="id_new_password2" class="col-md-4 col-lg-3 col-form-label">Re-enter New Password</label>
+                      <div class="col-md-8 col-lg-9">
+                        <input name="new_password2" type="password" class="form-control" id="id_new_password2">
+                      </div>
+                    </div>
+
+                    <div class="text-center">
+                      <button type="button" class="btn btn-primary" onclick="savePassword()">Change Password</button>
+                    </div>
+                  </form><!-- End Change Password Form -->
+
+                </div>
+
+              </div><!-- End Bordered Tabs -->
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+
+<script>
+
+
+function saveChanges() {
+    
+
+    var formData = new FormData(document.getElementById("edit-profile-form"));
+
+    var username = formData.get('username');
+    var email = formData.get('email');
+
+  if (!username || !email) {
+    // Jika input kosong, tampilkan pesan kesalahan atau lakukan tindakan sesuai kebutuhan
+    alert("Harap isi semua kolom form!");
+    return;
+  }
+    fetch("{% url 'userprofile:edit_profile_ajax' %}", {
+    method: "POST",
+    body: formData,
+  })
+    .then(response => response.json()).catch(error => {
+      // Tangani kesalahan jika fetch gagal
+      
+      // Kembalikan teks awal jika terjadi kesalahan
+      linkElement.textContent = 'oeyy';
+    });
+    var linkElement = document.getElementById("usernametext");
+    var linkElement2 = document.getElementById("usernametextprofiledetails");
+    var linkElement3 = document.getElementById("useremailtextprofiledetails");
+    linkElement.textContent = document.getElementById('inputusername').value;
+    linkElement2.textContent = document.getElementById('inputusername').value;
+    linkElement3.textContent = document.getElementById('inputuseremail').value;
+}
+
+
+function savePassword() {
+    var formData = new FormData(document.getElementById("change-password-form"));
+    var oldpassword = formData.get('old_password');
+    var newpassword = formData.get('new_password1');
+    var newpasswordconfirm = formData.get('new_password2')
+    if (!oldpassword || !newpassword || !newpasswordconfirm) {
+    // Jika input kosong, tampilkan pesan kesalahan atau lakukan tindakan sesuai kebutuhan
+    alert("Harap isi semua kolom form!");
+    return;
+  }
+  fetch("{% url 'userprofile:change_password_ajax' %}", {
+    method: "POST",
+    body: formData,
+  })
+    .then(response => response.json());
+
+
+
+}
+
+    
+</script>
+
+{% endblock content %}
