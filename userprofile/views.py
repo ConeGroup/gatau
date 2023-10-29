@@ -90,7 +90,6 @@ def change_password(request):
             return redirect('userprofile.html')
     else:
         form = PasswordChangeForm(request.user)
-    print("oeyy")
     return render(request, 'change_password.html', {'form': form})
 
 
