@@ -1,10 +1,9 @@
 {% extends 'base.html' %}
 
-{% load static}
+{% block content %}
 
 {% include 'navbar.html' %}
 
-{% block content %}
 <style>
     /* Gaya untuk tabel */
     table {
@@ -102,6 +101,7 @@
     <h3>Hi {{name}}, here's a list of your loan books</h3>
     <div class="catalog" id="product_table"></div>
     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">Add Loan Book</button>
+    <p></p>
     <h3>List of available books</h3>
     <div class="mb-3">
         <label for="filter_year" class="col-form-label">Filter by Year:</label>
