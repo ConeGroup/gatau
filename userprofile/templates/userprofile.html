@@ -1,6 +1,39 @@
 {% extends 'base.html' %}
 
+
+
 {% block content %}
+{% include 'navbar2.html' %}
+<style>
+    body {margin: 0; height: 100vh; background-color: rgba(224, 236, 244); 
+        background-attachment: fixed; background-size: cover; background-repeat: no-repeat;
+        }
+
+
+</style>
+
+<div class="modal fade" id="exampleModal2" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Contact Support</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>- Nurin Farzana Nafiah (2206082695)</p>
+                <p>- Calista Sekar Pamaja (2206082064)</p>
+                <p>- Muhammad Nanda Pratama (2206081654)</p>
+                <p>- Fazle Ilahi Bimo Aji (2206081446)</p>
+                <p>- Resanda Dezca Asyam (2206082682)</p>
+            
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="alert_placeholder"></div>
 
 <div id="success-message" style="color: green;"></div>
@@ -8,16 +41,20 @@
 
 <main id="main" class="main">
 
-    <div class="pagetitle" style="display: flex; flex-direction: column; align-items: center;">
-        <h1>Profile</h1>
-        <nav>
-          <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
-            <li class="breadcrumb-item">Account Settings</li>
-          </ol>
-        </nav>
-      </div><!-- End Page Title -->
-      
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 text-center">
+                <h1 class="display-4">Profile</h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb justify-content-center bg-transparent py-2">
+                        <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Account Settings</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+    
 
     <section class="section profile">
       <div class="row d-flex justify-content-center">
