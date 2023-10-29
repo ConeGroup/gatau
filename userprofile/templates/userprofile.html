@@ -1,0 +1,205 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+
+{% block content %}
+{% include 'navbar2.html' %}
+<style>
+    body {margin: 0; height: 100vh; background-color: rgba(224, 236, 244); 
+        background-attachment: fixed; background-size: cover; background-repeat: no-repeat;
+        }
+
+
+</style>
+
+<div class="modal fade" id="exampleModal2" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Contact Support</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>- Nurin Farzana Nafiah (2206082695)</p>
+                <p>- Calista Sekar Pamaja (2206082064)</p>
+                <p>- Muhammad Nanda Pratama (2206081654)</p>
+                <p>- Fazle Ilahi Bimo Aji (2206081446)</p>
+                <p>- Resanda Dezca Asyam (2206082682)</p>
+            
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="alert_placeholder"></div>
+
+<div id="success-message" style="color: green;"></div>
+<div id="error-message" style="color: red;"></div>
+
+<main id="main" class="main">
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 text-center">
+                <h1 class="display-4">Profile</h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb justify-content-center bg-transparent py-2">
+                        <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Account Settings</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+    
+
+    <section class="section profile">
+      <div class="row d-flex justify-content-center">
+
+        <div class="col-xl-8">
+
+          <div class="card">
+            <div class="card-body pt-3">
+              <!-- Bordered Tabs -->
+              <ul class="nav nav-tabs nav-tabs-bordered" role="tablist">
+
+                <li class="nav-item" role="presentation">
+                  <button id="button1" class="nav-link active" data-bs-toggle="tab" data-bs-target="#profile-overview" aria-selected="true" role="tab">Overview</button>
+                </li>
+
+                <li class="nav-item" role="presentation">
+                  <button id="button2" class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-edit" aria-selected="true" tabindex="-1" role="tab">Edit Profile</button>
+                </li>
+
+
+                <li class="nav-item" role="presentation">
+                  <button id="button4" class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-change-password" aria-selected="false" tabindex="-1" role="tab">Change Password</button>
+                </li>
+
+              </ul>
+              <div class="tab-content pt-2">
+
+                <div class="tab-pane fade show active profile-overview" id="profile-overview" role="tabpanel">
+
+                  <h5 class="card-title">Profile Details</h5>
+
+                  <div class="row">
+                    <div class="col-lg-3 col-md-4 label ">User Name</div>
+                    <div id="usernametextprofiledetails" class="col-lg-9 col-md-8">{{user.username}}</div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-lg-3 col-md-4 label">Email</div>
+                    <div id="useremailtextprofiledetails" class="col-lg-9 col-md-8">{{user.email}}</div>
+                  </div>
+
+
+                  <div class="row">
+                    <div class="col-lg-3 col-md-4 label">Number of Loan Books</div>
+                    <div id="useremailtextprofiledetails" class="col-lg-9 col-md-8">{{ CountLoansBook }}</div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-lg-3 col-md-4 label">Number of Review Books</div>
+                    <div id="useremailtextprofiledetails" class="col-lg-9 col-md-8">{{CountReviewBook }}</div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-lg-3 col-md-4 label">Number of Request Books</div>
+                    <div id="useremailtextprofiledetails" class="col-lg-9 col-md-8">{{CountRequestBook }}</div>
+                  </div>
+
+                </div>
+
+                <div class="tab-pane fade profile-edit pt-3" id="profile-edit" role="tabpanel">
+
+                  <!-- Profile Edit Form -->
+                  <form id="edit-profile-form">
+                    {% csrf_token %}
+                    <div class="row mb-3">
+                      <label for="username" class="col-md-3 col-form-label">User Name</label>
+                      <div class="col-md-9">
+                        <input id="inputusername" type="text" class="form-control" id="username" name="username" value="{{user_form.username}}">
+                      </div>
+                    </div>
+                    <div class="row mb-3">
+                      <label for="email" class="col-md-3 col-form-label">Email</label>
+                      <div class="col-md-9">
+                        <input id="inputuseremail" type="text" class="form-control" id="email" name="email" value="{{user_form.email}}">
+                      </div>
+                    </div>
+                    <div class="text-center">
+                      <button type="button" class="btn btn-primary" onclick="saveChanges()">Save Changes</button>
+                    </div>
+                  </form>
+
+                  </div>
+
+
+
+                <div class="tab-pane fade pt-3" id="profile-change-password" role="tabpanel">
+                    <h1>Rules:</h1>
+                    <a>- Your password can't be too similar to your other personal information.</a><br>
+                    <a>- Your password must contain at least 8 characters.</a><br>
+                    <a>- Your password can't be a commonly used password.</a><br>
+                    <a>- Your password can't be entirely numeric.</a><br>
+                    <a>- Your current password must be valid.</a><br>
+                    <a>- Your new password and re-enter new password must be valid and the same.</a><br>
+                    
+                  <!-- Change Password Form -->
+                  <form id="change-password-form">
+                    {% csrf_token %}
+                    <div class="row mb-3">
+                      <label for="id_old_password" class="col-md-4 col-lg-3 col-form-label">Current Password</label>
+                      <div class="col-md-8 col-lg-9">
+                        <input name="old_password" type="password" class="form-control" id="id_old_password">
+                      </div>
+                    </div>
+
+                    <div class="row mb-3">
+                      <label for="id_new_password1" class="col-md-4 col-lg-3 col-form-label">New Password</label>
+                      <div class="col-md-8 col-lg-9">
+                        <input name="new_password1" type="password" class="form-control" id="id_new_password1">
+                      </div>
+                    </div>
+
+                    <div class="row mb-3">
+                      <label for="id_new_password2" class="col-md-4 col-lg-3 col-form-label">Re-enter New Password</label>
+                      <div class="col-md-8 col-lg-9">
+                        <input name="new_password2" type="password" class="form-control" id="id_new_password2">
+                      </div>
+                    </div>
+
+                    <div class="text-center">
+                      <button type="button" class="btn btn-primary" onclick="savePassword()">Change Password</button>
+                    </div>
+                  </form><!-- End Change Password Form -->
+
+                </div>
+
+              </div><!-- End Bordered Tabs -->
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+
+
+{% load static %}
+<script type="application/javascript" src="{% static 'js/script.js' %}">
+
+
+
+    
+</script>
+
+{% endblock content %}
