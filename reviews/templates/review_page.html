@@ -2,34 +2,10 @@
 
 {% load static %}
 
-{% include 'navbar.html' %}
 
 {% block content %}
+    {% include 'navbar.html' %}
 
-    <style>
-        #book_card {
-            display: flex;
-            flex-direction: row;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        .card-title {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 100%;
-        }
-        .step-labels {
-            display: flex;
-            margin-top: 5px;
-        }
-
-        .step-labels span {
-            flex: 1;
-        }
-
-
-    </style>
         <div class="col-lg-7 offset-lg-2 mt-5">
 
             <h1 class="display-2">Choose one book to review</h1>
@@ -37,35 +13,6 @@
             <!-- KATALOG -->
             <div class='row' id="book_card"></div>
         </div>
-        
-
-    <!-- <div class="modal fade" id="reviewByWidget" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">Review</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="form" onsubmit="return false;">
-                        {% csrf_token %}
-                            <label class="form-check-label" for="is_recommended">Have you read this book?</label>
-                            <div class="btn-group" data-toggle="buttons">
-                                <button type="button" class="btn btn-primary" id="start-review" data-bs-dismiss="modal">Yes</button>
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
-                            
-                            </div>                       
-                         </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" id="add_review_btn" data-bs-dismiss="modal">Add Review</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div> -->
-
 
     <div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -270,29 +217,13 @@
 
         document.getElementById("add_review_btn").onclick = addReview
 
+
         function displayNotification(message) {
             const notificationMessage = document.getElementById('notificationMessage');
             notificationMessage.textContent = message;
             $('#notificationModal').modal('show');
         }
     
-    // function addReviewForms() {
-    //     const bookId = document.getElementById('reviewModalBookId').value;
-    //     const data = new FormData(document.querySelector('#start-review'));
-    //     data.append('book_id', bookId); 
-
-    //     fetch("{% url 'reviews:add_review_form' %}", {
-    //             method: "POST",
-    //             body: data
-    //         }).then(refreshBookCards)
-
-    //         document.getElementById("start-review").reset()
-    //         return false
-    //     }
-
-    //     document.getElementById("start-review").onclick = addReviewForms
-        
-
     </script>
 
 {% endblock content %}

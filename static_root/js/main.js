@@ -1,66 +1,3 @@
-{% extends 'base.html' %}
-
-{% load static %}
-
-{% block content %}
-    {% include 'navbar.html' %}
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-
-        <div class="d-flex justify-content-center align-self-center" style="height: 100vh;justify-content: center;align-items: center;">
-            <div class="jumbotron">
-                <h1 class="display-2">Review as many books as you can!</h1>
-                <p class="lead">You're {{total_reviews}}% through the Book Review track. Keep up the good work! 🚀</p>
-                <div class="progress" style="max-height: 40px;">
-                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow=total_reviews aria-valuemin="0" aria-valuemax="100" style="width:{{ total_reviews }}%;"></div>
-                </div>
-                <hr class="my-4">
-                <p class="lead">
-                    <div class="action-review-btn">
-                        <a class="btn btn-primary btn-lg" role="button" href="{% url 'reviews:review_page' %}">Start Reviewing</a>
-                    </div>
-                </p>
-            </div>
-        </div>
-    <div class="col-lg-7 offset-lg-2 mt-5">
-
-        </div>
-        <div class="container mb-5">
-            <h1 class="display-5">Check out your reviews so far</h1>
-            <div>
-                <div id="user_reviews"></div>
-            </div>
-
-        </div>
-
-        <!-- KATALOG -->
-        <div class="book_reviews container">
-            <h1 class="display-5">Book Catalog</h1>
-            <div class='row' id="book_card"></div>
-        </div>
-    </div>
-
-        
-
-
-        <!-- Notification Modal -->
-        <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="notificationModalLabel">Notification</h5>
-                </div>
-                <div class="modal-body" id="notificationMessage">
-                </div>
-            </div>
-            </div>
-        </div>
-    </div>
-  
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
-
-
-    <script>
         async function getBooks() {
             return fetch("{% url 'reviews:get_book_json' %}").then((res) => res.json())
         }
@@ -221,12 +158,12 @@ async function refreshUserReviewCards() {
                                     <form id="editReviewForm" method="post">
                                         {% csrf_token %}
                                         <div class="form-group">
-                                            <label for="edit_rating">Rating:</label>
-                                            <input type="number" name="edit_rating" id="edit_rating" min=0 max=5 step=1>
+                                            <label for="editRating">Rating:</label>
+                                            <input type="number" name="editRating" id="editRating" value="{{ review.rating }}">
                                         </div>
                                         <div class="form-group">
-                                            <label for="edit_desc">Review:</label>
-                                            <textarea name="edit_desc" id="edit_desc"></textarea>
+                                            <label for="book_review_desc">Review:</label>
+                                            <textarea name="editDeskripsi" id="editDeskripsi"></textarea>
                                         </div>
                                         <div class="form-check">
                                             <input class="form-check-input" type="checkbox" name="edit_is_recommended" id="edit_is_recommended" {% if review.is_recommended %}checked{% endif %}>
@@ -235,9 +172,8 @@ async function refreshUserReviewCards() {
                                     </form>
                                 </div>
                                 <div class="modal-footer">
-                                    <p>${review.id}</p>
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                    <button type="button" class="btn btn-primary" id="button_edit${review.pk}" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="updateReview(${review.id})">Save Changes</button>
+                                    <button type="button" class="btn btn-primary" id="button_edit${review.pk}" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="updateReview(${review.pk})">Save Changes</button>
                                 </div>
                             </div>
                         </div>
@@ -305,6 +241,34 @@ refreshUserReviewCards();
         notificationMessage.textContent = message;
         $('#notificationModal').modal('show');
     }
+    
+    function handleSaveChanges(reviewId) {
+        const editReviewForm = document.getElementById('editReviewForm');
+        const formData = new FormData(editReviewForm);
+
+        fetch(`/reviews/update-review/${reviewId}/`, {
+            method: 'POST',
+            body: formData,
+        })
+        .then(response => {
+            if (response.ok) {
+                $('#editReviewModal').modal('hide');
+                refreshUserReviewCards(); 
+            } else {
+                console.error('Failed to update the review.');
+            }
+        })
+        .catch(error => {
+            console.error('An error occurred while updating the review:', error);
+        });
+    }
+
+    const saveEditReviewButton = document.getElementById('saveEditReviewButton');
+    saveEditReviewButton.addEventListener('click', () => {
+        const reviewId = this.getAttribute('data-review-id');
+        handleSaveChanges(reviewId);
+    });
+
 
     async function updateReview(id) {
         let url="{% url 'reviews:edit_review' '0' %}";
@@ -327,7 +291,3 @@ refreshUserReviewCards();
             method: "DELETE",
         }).then(refreshUserReviewCards)
     }
-
-    </script>
-
-{% endblock content %}

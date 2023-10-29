@@ -10,25 +10,7 @@ from reviews.forms import ReviewForm
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 
-
-
-# Create your views here.
-# @login_required(login_url='/login')
-# @csrf_exempt
-# def create_review(request):
-#     if request.method == 'POST':
-#         name = request.POST.get("name")
-#         price = request.POST.get("price")
-#         description = request.POST.get("description")
-#         user = request.user
-
-#         new_product = Product(name=name, price=price, description=description, user=user)
-#         new_product.save()
-
-#         return HttpResponse(b"CREATED", status=201)
-
-#     return HttpResponseNotFound()
-
+@login_required(login_url='../login')
 def show_main(request):
     books = Book.objects.all()
     reviews = Review.objects.all()
@@ -47,10 +29,12 @@ def show_main(request):
 def review_page(request):
     books = Book.objects.all()
     reviews = Review.objects.all()
+    form = ReviewForm()
     context = {
         'user' : request.user,
         'books' : books,
         'reviews' : reviews,
+        'form' : form,
     }
     return render(request, "review_page.html", context)
 
@@ -64,21 +48,6 @@ def book_details(request, book_id):
     }
     return render(request, "book_details.html", context)
 
-# def get_user_reviews(request):
-#     user = request.user
-#     reviews = Review.objects.filter(user=user)
-#     review_data = []
-
-#     for review in reviews:
-#         review_data.append({
-#             'book_title': review.book.title,
-#             'rating': review.rating,
-#             'book_review_desc': review.book_review_desc,
-#             'is_recommended': review.is_recommended,
-#             'date_added': review.date_added,
-#         })
-
-#     return JsonResponse({'reviews': review_data})
 
 def get_book_by_id_json(request, id):
     book = Book.objects.get(pk=id)
@@ -91,16 +60,9 @@ def get_book_by_id_json(request, id):
         'image_l': book.image_l,
     }
     return JsonResponse(book_data)
-    # data = Book.objects.filter(pk=id)
-    # return HttpResponse(serializers.serialize("json", data), content_type="application/json")
-
-# def get_review_by_user_json(request):
-#     data = Review.objects.filter(user=request.user)
-#     return HttpResponse(serializers.serialize("json", data), content_type="application/json")
-
 
 def get_review_by_id_json(request, id):
-    review = Review.get_object_or_404(pk=id)
+    review = get_object_or_404(Review, pk=id)
     review_data = {
         'book': review.book,
         'user': request.user,
@@ -110,12 +72,9 @@ def get_review_by_id_json(request, id):
     }
     return JsonResponse(review_data)
 
-
-
 def update_review(request, review_id):
     try:
         review = Review.objects.get(pk=review_id)
-        # Retrieve and validate updated data from request.POST or request data
         review.rating = request.POST['rating']
         review.book_review_desc = request.POST['book_review_desc']
         review.is_recommended = request.POST['is_recommended']
@@ -160,6 +119,7 @@ def back_to_main(request):
 
 @csrf_exempt
 def add_review_ajax(request):
+    
     if request.method == 'POST':
         rating = request.POST.get('rating')
         book_id = request.POST.get('book_id')
@@ -173,7 +133,6 @@ def add_review_ajax(request):
 
         book = Book.objects.get(pk = book_id)
 
-        # Create a new Review object
         review = Review(
             user=request.user,
             book=book, 
@@ -185,19 +144,53 @@ def add_review_ajax(request):
 
         return HttpResponse(b"CREATED", status=201)
 
-    # Handle other HTTP methods or render a form
     return HttpResponseNotFound()
 
-def create_review(request):
-    form = ReviewForm(request.POST or None)
+def review_sheet(request, id):
+    form = ReviewForm()
+    book = get_object_or_404(Book, pk=id)
 
-    if form.is_valid() and request.method == "POST":
-        form.save()
+    if request.method == "POST":
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            form.save()
         return HttpResponseRedirect(reverse('reviews:show_main'))
+            
+    context = {
+        'form':form,
+        'book':book,
+    }
+    return render(request, 'review_sheet.html', context)
 
-    context = {'form': form}
-    return render(request, "create_review.html", context)
+@csrf_exempt
+def delete_review(request, id):
+    try:
+        review = Review.objects.get(pk=id)
+        review.delete()
+        return JsonResponse({'message': 'Review deleted successfully'})
+    except Review.DoesNotExist:
+        return JsonResponse({'message': 'Review item not found'}, status=404)
+    
+@csrf_exempt
+def edit_review(request, review_id):
+    review = get_object_or_404(Review, pk=review_id)
+    form = ReviewForm(request.POST or None, instance=review)
 
+    if request.method == 'POST':
+        review.rating = request.POST.get("edit_rating")
+        review.book_review_desc = request.POST.get("edit_desc")
+        is_recommended = request.POST.get('edit_is_recommended')
+        if is_recommended == 'yes':
+            is_recommended = True
+        else:
+            is_recommended = False
+        review.is_recommended = bool(is_recommended)
+        review.user = request.user
+        review.save()
+
+        return HttpResponse(b"UPDATED", status=201)
+
+    return HttpResponseNotFound()
 
 def add_review_form(request):
     form = ReviewForm(request.POST or None)
