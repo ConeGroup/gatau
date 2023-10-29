@@ -127,6 +127,7 @@ STATIC_URL = 'static/'
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'reviews/static'),  # Add the 'static' folder of your app
+    os.path.join(BASE_DIR, 'userprofile/static'),  # Add the 'static' folder of your app
 ]
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static_root')
