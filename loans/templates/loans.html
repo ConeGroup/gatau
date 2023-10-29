@@ -1,0 +1,296 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% include 'navbar.html' %}
+
+<style>
+    /* Gaya untuk tabel */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    h3{
+        text-align: center;
+    }
+    
+    .catalog {
+        display: grid;
+        grid-template-columns: repeat(1, 1fr); /* 1 kolom untuk layar kecil */
+        gap: 10px;
+    }
+
+    @media (min-width: 600px) {
+        .catalog {
+            grid-template-columns: repeat(2, 1fr); /* 2 kolom untuk layar sedang */
+        }
+    }
+
+    @media (min-width: 900px) {
+        .catalog {
+            grid-template-columns: repeat(3, 1fr); /* 3 kolom untuk layar besar */
+        }
+    }
+    @media (min-width: 1200px) {
+        .catalog {
+            grid-template-columns: repeat(4, 1fr); /* 3 kolom untuk layar besar */
+        }
+    }
+    .card{
+        width: 300px;
+        height: 450px;
+        margin: 1%; /* Ruang antara kartu */
+        display: inline-block; /* Membuat kartu tampil secara horizontal */
+        align-items: top;
+        align-self: center;
+        display: grid;
+        margin: 10px 10px 10px 10px; 
+        vertical-align: top;
+        border-radius: 10px;
+        box-shadow: 0 15px 25px rgba(138, 155, 178, 0.882);;
+    }
+
+    .card-book{
+        width: 300px;
+        height: 450px;
+        margin: 1%; /* Ruang antara kartu */
+        display: inline-block; /* Membuat kartu tampil secara horizontal */
+        align-items: top;
+        align-self: center;
+        display: grid;
+        margin: 10px 10px 10px 10px; 
+        vertical-align: top;
+        border-radius: 10px;
+        box-shadow: 0 15px 25px rgba(138, 155, 178, 0.882);;
+    }
+
+    .delete-button {
+    background-color: #ff3333;
+    color: #fff;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    width: 96%;
+    height: 40px;
+    display: inline-block; /* Ini membuat tombol sejajar */
+    position: absolute;
+    bottom: 10px; /* Mengatur posisi tombol di bagian bawah kartu */
+    right: 5px; /* Mengatur posisi tombol di bagian kanan kartu */
+}
+    
+    .custom-button {
+        margin-right: 10px;
+        justify-content: center;
+        align-items: center;
+    }
+    button{
+        width: 100%;
+    }
+    .error-message {
+    color: #ff3333; /* Warna pesan kesalahan merah */
+    font-size: 12px; /* Ukuran teks pesan kesalahan */
+    display: block; /* Menampilkan pesan kesalahan sebagai blok */
+    margin-top: 5px; /* Jarak atas pesan kesalahan */
+}
+</style>
+
+<div class="container">
+    <h3>Hi {{name}}, here's a list of your loan books</h3>
+    <div class="catalog" id="product_table"></div>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">Add Loan Book</button>
+    <p></p>
+    <h3>List of available books</h3>
+    <div class="mb-3">
+        <label for="filter_year" class="col-form-label">Filter by Year:</label>
+        <input type="number" class="form-control" id="filter_year">
+    </div>
+    <button type="button" class="btn btn-primary" id="apply_filter">Apply Filter</button>
+    <p></p>
+    <button type="button" class="btn btn-primary" id="reset_filter">Reset Filter</button>
+    <div class="catalog" id="book-cards"></div>
+</div>
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Add New Product</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="form" onsubmit="return false;">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="number_book" class="col-form-label">Book Numbers:</label>
+                        <input type="number" class="form-control" id="number_book" name="number_book"></input>
+                        <span id="number_book_error" class="error-message"></span>                    </div>
+                    <div class="mb-3">
+                        <label for="date_return" class="col-form-label">Date of Return:</label>
+                        <input type="date" class="form-control" id="date_return" name="date_return" min="{{ today }}" max="{{ maxDate }}"></input>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="button_add" data-bs-dismiss="modal">Add Book</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    // Dapatkan elemen input tanggal
+    const dateReturnInput = document.getElementById("date_return");
+
+    // Hitung tanggal hari ini
+    const today = new Date().toISOString().split('T')[0];
+
+    // Hitung tanggal 10 hari ke depan
+    const maxDate = new Date();
+    maxDate.setDate(maxDate.getDate() + 10);
+    const maxDateStr = maxDate.toISOString().split('T')[0];
+
+    // Setel atribut min dan max pada elemen input tanggal
+    dateReturnInput.setAttribute("min", today);
+    dateReturnInput.setAttribute("max", maxDateStr);
+
+    async function getProducts() {
+        return fetch("{% url 'loans:get_product_json' %}").then((res) => res.json());
+    }
+
+
+    async function refreshProducts() {
+        document.getElementById("product_table").innerHTML = "";
+        const products = await getProducts();
+        const books = await getBook();
+        let htmlString = '<div class="catalog row-cols-1 row-cols-md-4 mb-3 text-center">';;
+
+        products.forEach((item) => {
+            book = books[item.fields.number_book-1];
+            htmlString += `
+                <div class="col mb-3 ml-7">
+                    <div class="shadow mb-3 bg-body">
+                        <div class="card">
+                            <div class="card-body" width=100%>
+                                <h5 class="card-title font-weight-bold" style="text-shadow: 2px 2px 4 px rgba(0, 0, 0, 0)">
+                                <div class="image-container">
+                                    <img src="${book.fields.image_m}" alt="Book Cover">
+                                </div>
+                                <h5>${book.fields.title}</h5>
+                                <p>Loan date:${item.fields.date_loan}</p>
+                                <p>Return date:${item.fields.date_return}</p>
+                            </div>
+                            <button onclick="deleteProduct(${item.pk})" type="custom-button" class="delete-button">
+                                Return
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        document.getElementById("product_table").innerHTML = htmlString;
+    }
+
+    function addProduct() {
+        var numberBook = parseInt(document.getElementById("number_book").value);
+        var numberBookError = document.getElementById("number_book_error");
+
+        if (numberBook >= 1 && numberBook <= 100) {
+            // Lakukan tindakan tambah buku di sini
+            fetch("{% url 'loans:add_book_ajax' %}", {
+                method: "POST",
+                body: new FormData(document.querySelector('#form'))
+            })
+            .then(() => {
+                document.getElementById("form").reset();
+                numberBookError.textContent = ""; // Hapus pesan kesalahan jika ada
+            }).then(() => {
+                refreshProducts(); // Setelah menambahkan produk, panggil fungsi refreshProducts untuk menampilkan produk yang baru ditambahkan
+            });
+        } else {
+            // Tampilkan pesan kesalahan
+            numberBookError.textContent = "Book numbers must be in the range 1-100";
+            document.getElementById("form").reset();
+        }
+    }
+
+    function deleteProduct(pk) {
+        fetch(`delete_book/${pk}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': csrftoken,
+                'mode': 'same-origin'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Product deleted:', data);
+            refreshProducts();
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    document.getElementById("button_add").onclick = addProduct;
+    refreshProducts();
+
+    async function getBook() {
+        return fetch("{% url 'loans:get_book_json' %}").then((res) => res.json());
+    }
+
+    async function refreshBookCard(filterYear) {
+        document.getElementById("book-cards").innerHTML = "";
+        const books = await getBook();
+        let htmlString = '<div class="catalog row-cols-1 row-cols-md-4 mb-3 text-center">';
+
+        books.forEach((book) => {
+            // Periksa apakah tahun buku sesuai dengan filter
+            if (!filterYear || book.fields.year === filterYear) {
+                htmlString += `
+                    <div class="col mb-3 ml-7">
+                        <div class="shadow mb-3 bg-body">
+                            <div class="card-book">
+                                <div class="card-body" width=100%>
+                                    <h5 class="card-title font-weight-bold" style="text-shadow: 2px 2px 4 px rgba(0, 0, 0, 0)">
+                                    <div class="image-container">
+                                        <img src="${book.fields.image_m}" alt="Book Cover">
+                                    </div>
+                                    <h5 class="card-title">${book.fields.title}</h5>
+                                    <p class="card-text">Author: ${book.fields.author}</p>
+                                    <p class="card-text">Year: ${book.fields.year}</p>
+                                    <p class="card-text">Publisher: ${book.fields.publisher}</p>
+                                    <p class="card-text">Book Numbers: ${book.pk}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        });
+
+        document.getElementById("book-cards").innerHTML = htmlString;
+    }
+
+    document.getElementById("apply_filter").onclick = function() {
+        const filterYear = parseInt(document.getElementById("filter_year").value);
+        refreshBookCard(filterYear);
+    };
+
+
+    function resetFilter() {
+        document.getElementById("filter_year").value = ""; // Kosongkan input filter
+        refreshBookCard(); // Panggil fungsi refreshBookCard tanpa parameter filter
+    }
+    document.getElementById("reset_filter").onclick = resetFilter;
+
+
+    // Panggil refreshBookCard() untuk menampilkan kartu buku saat halaman dimuat.
+    refreshBookCard();
+</script>
+
+{% endblock content %}
