@@ -1,0 +1,31 @@
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $(".add-to-collection").click(function() {
+            var collection_id = $(this).data("collection-id");
+            var book_id = $(this).data("book-id");
+            
+            $.ajax({
+                url: '/collections/add_book_to_collection_ajax/',
+                type: 'POST',
+                data: {
+                    'collection_id': collection_id,
+                    'book_id': book_id
+                },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        alert('Buku telah ditambahkan ke koleksi.');
+                        // Lakukan tindakan lain jika diperlukan.
+                    } else {
+                        alert('Gagal menambahkan buku ke koleksi.');
+                    }
+                }
+            });
+        });
+    });
+</script>
+
+
+button:
+<button class="add-to-collection" data-collection-id="{{ collection.id }}" data-book-id="{{ book.id }}">Tambahkan ke Koleksi</button>
+
