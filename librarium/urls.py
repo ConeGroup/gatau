@@ -23,6 +23,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('home.urls')),
     path('api/books/', include('book.urls')),
+    path('userprofile/', include(('userprofile.urls', 'userprofile'), namespace='userprofile')),
     path('collection/', include('collection.urls')),
     path('reviews/', include('reviews.urls')),
     path('book-request/', include('bookrequest.urls')),
