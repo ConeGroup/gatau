@@ -39,6 +39,23 @@
         text-align: center;
         font-weight: 700;
     }
+    .footer {
+        width: 100%;
+        height: 180px;
+        display: flex;
+        justify-content: center;
+        background-color: #051e3c;
+        color: #FFF;
+        text-align: center;
+    }
+
+    .footer-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+    }
 </style>
 
 <div class="col-md-6 offset-md-3" id="landing">
@@ -165,6 +182,7 @@
     </div>
 </div>
 
+
 <script>
 
     async function refreshUser() {
@@ -219,6 +237,22 @@
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
             </div>
         </div>
+    </div>
+</div>
+
+<div class="footer">
+    <div class="footer-content">
+        <h5>TBC - Be Literate with Librarium</h5>
+        <p>
+            <a class="dropdown-item d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#exampleModal2" href='#'>
+                <i class="bi bi-question-circle"></i>
+                <span>Contact Us</span>
+            </a>
+        </p>
+        <p>
+            Nurin | Calista | Nanda | Bimo | Ezza
+        </p>
+        <p>&copy; 2023 Librarium | All rights reserved.</p>
     </div>
 </div>
 
