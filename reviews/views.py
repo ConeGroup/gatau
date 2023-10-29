@@ -187,11 +187,28 @@ def edit_review(request, review_id):
         review.is_recommended = bool(is_recommended)
         review.user = request.user
         review.save()
-        
+
 
         return HttpResponse(b"UPDATED", status=201)
 
     return HttpResponseNotFound()
+
+# @csrf_exempt
+# def edit_review(request, review_id):
+#     review = get_object_or_404(Review, pk=review_id)
+#     form = ReviewForm(request.POST or None, instance=review)
+
+
+#     if form.is_valid() and request.method == "POST":
+#         # Simpan form dan kembali ke halaman awal
+#         form.save()
+#         return HttpResponseRedirect(reverse('reviews:show_main'))
+
+#     context = {'form': form}
+#     print("hello")
+#     return render(request, "review_sheets.html", context)
+
+
 
 def add_review_form(request):
     form = ReviewForm(request.POST or None)

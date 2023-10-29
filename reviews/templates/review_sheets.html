@@ -7,15 +7,6 @@
     
     <form method="POST">
         {% csrf_token %}
-        <h5 class="card-text font-weight-bold" style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);" id="reviewModalTitle"></h5>
-        <div class="image-container-modal">
-            <img id="reviewModalCover" alt="Book Cover" style="width: 106px; height: 160px;">
-        </div>
-        <p class="card-text" id="reviewModalAuthor"></p>
-        <p class="btn bg-primary" id="reviewModalYear"></p>
-        <small class="text-muted" id="reviewModalISBN"></small>
-        <small class="text-muted" id="reviewModalBookId"></small>
-        <form id="form" onsubmit="return false;">
             <div class="form-group mb-3">
                 <label for="rating">Book Ratings</label>
                 {{ form.rating }}
@@ -28,11 +19,9 @@
                 <p>Would you recommend this book?</p>
                 {{ form.is_recommended }}                       
             </div>
-        </form>
-    </div>
     <div>
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="submit" class="btn btn-primary" value="Register">Add Review</button>
+        <button type="submit" class="btn btn-primary" value="Edit Review">Edit Review</button>
     </div>
     
     </form>
