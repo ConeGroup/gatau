@@ -173,10 +173,10 @@ async function refreshUserReviewCards() {
                             <div class="shadow mb-3 bg-body">
                                 <div class="card">
                                     <div class="card-body">
-                                        <h4 class="card-title font-weight-bold">${review.book_title}</h4>
-                                        <p class="card-text">Rating: ${review.rating}</p>
+                                        <h4 class="card-title font-weight-bold" id="title${review.id}">${review.book_title}</h4>
+                                        <p class="card-text" id="rating${review.id}">Rating: ${review.rating}</p>
                                         <p class="card-text">
-                                            <span class="book-description">
+                                            <span class="book-description" id="desc${review.id}">
                                                 ${desc.slice(0, 200)}
                                                 ${desc.length > 200 ?
                                                     `<p><a href="#" class="show-more-link" data-bs-toggle="collapse" data-bs-target="#collapseDesc${review.id}">Show more</a><p>` :
@@ -185,15 +185,14 @@ async function refreshUserReviewCards() {
                                             </span>
                                         </p>
                                         <div id="collapseDesc${review.id}" class="collapse">
-                                            <p class="card-text">${review.book_review_desc}</p>
+                                            <p class="card-text" id="descfull${review.id}">${review.book_review_desc}</p>
                                         </div>
-
-                                        <p class="card-text">You ${review.is_recommended ? 'recommend' : 'did not recommend'} this</p>                                        
+                                        <p class="card-text" id="isRecommended${review.id}">You ${review.is_recommended ? 'recommend' : 'did not recommend'} this</p>                                        
                                         <nav aria-label="..." class="pag-1">
                                             <div class="row mx-3">
                                                 <div class="div-rm col px-3">
                                                     <div class="row">
-                                                        <button type="button" class="btn btn-success" id="update-card" data-bs-toggle="modal" data-bs-target="#editReviewModal">Edit</button>
+                                                        <button type="button" class="btn btn-success" id="update-card" data-bs-toggle="modal" data-bs-target="#editReviewModal${review.id}">Edit</button>
                                                     </div>
                                                 </div>
                                                 <div class="div-rm col px-3">
@@ -210,7 +209,7 @@ async function refreshUserReviewCards() {
                                 </div>
                             </div>
                         </div>
-                        <div class="modal" id="editReviewModal" tabindex="-1" role="dialog" aria-labelledby="editReviewModalLabel" aria-hidden="true">
+                        <div class="modal" id="editReviewModal${review.id}" tabindex="-1" role="dialog" aria-labelledby="editReviewModalLabel" aria-hidden="true">
                         <div class="modal-dialog" role="document">
                             <div class="modal-content">
                                 <div class="modal-header">
@@ -220,25 +219,25 @@ async function refreshUserReviewCards() {
                                     </button>
                                 </div>
                                 <div class="modal-body">
-                                    <form id="form" onsubmit="return false;">
+                                    <form id="form${review.id}" onsubmit="return false;">
                                         {% csrf_token %}
                                         <div class="form-group">
                                             <label for="edit_rating">Rating</label>
-                                            <input class="form-control" type="number" name="edit_rating" id="edit_rating" min=0 max=5 step=1 value=${review.rating}>
+                                            <input class="form-control" type="number" name="edit_rating" id="edit_rating" min=0 max=5 step=1 value=${review.rating} required>
                                         </div>
                                         <div class="form-group">
                                             <p>Book Review</p>
-                                            <textarea class="form-control" name="edit_desc" id="edit_desc">${review.book_review_desc}</textarea>
+                                            <textarea class="form-control" name="edit_desc" id="edit_desc" required>${review.book_review_desc}</textarea>
                                         </div>
                                         <div class="form-check">
                                             <label class="form-check-label" for="edit_is_recommended">I recommend this book</label>
-                                            <input class="form-check-input" type="checkbox" name="edit_is_recommended" id="edit_is_recommended" {% if review.is_recommended %}checked{% endif %}>
+                                            <input class="form-check-input" type="checkbox" required name="edit_is_recommended" id="edit_is_recommended" {% if review.is_recommended %}checked{% endif %}>
                                         </div>
                                     </form>
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                    <button type="button" class="btn btn-primary" id="button_edit${review.pk}" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="updateReview(${review.id})">Save Changes</button>
+                                    <button type="button" class="btn btn-primary" id="button_edit${review.id}" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="updateReview(${review.id})">Save Changes</button>
                                 </div>
                             </div>
                         </div>
@@ -309,24 +308,26 @@ refreshUserReviewCards();
 
     async function updateReview(id) {
         let url="{% url 'reviews:edit_review' '0' %}";
+        let formid = '#form' + id
         url= url.replace('0',id);
         const response = await fetch(url,{
             method: "POST",
-            body: new FormData(document.querySelector('#form')),
-        }).then(refreshUserReviewCards(id))
-    
+            body: new FormData(document.querySelector(formid)),
+        }).then(refreshUserReviewCards())
+
+        document.getElementById('form'+id).reset()
+        const reviews = await getReviews()
+        reviews.forEach((item) => {
+            if(item.pk === id) {
+                let review = item
+            }
+        })
+        document.getElementById('rating' + id).innerHTML = review.fields.rating;
+        document.getElementById('desc' + id).innerHTML = review.fields.book_review_desc;
+        document.getElementById('descfull' + id).innerHTML = review.fields.book_review_desc;
+        document.getElementById('isRecommended' + id).innerHTML = review.fields.is_recommended;    
     }
-    // async function editReview(id) {
-    //     let url="{% url 'reviews:edit_review' '0' %}";
-    //     url= url.replace('0',id);
-    //     const response = await fetch(url, {
-    //         method: "POST"
-    //     })
-    // }
         
-    function resetForm() {
-        document.getElementById("form").reset()
-    }
     async function deleteReview(id) {
         let url="{% url 'reviews:delete_review' '0' %}";
         let count = 0

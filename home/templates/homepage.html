@@ -4,81 +4,116 @@
 
 {% include 'navbar.html' %}
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,400;0,700;1,100;1,400;1,700&family=Source+Code+Pro:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet">
+
+<style>
+    .features-container {
+        padding: 24px 0px;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .features {
+        border-radius: 20px;
+        background: #279EFF;
+        color: var(--b-tusk, #F3F3F1);
+        font-family: Poppins;
+        font-size: 15px;
+        margin: 50px;
+        box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.3);
+    }
+    .fitur-btn {
+        border-radius: 6.045px;
+        color: black;
+        font-weight: bold;
+        background: #FFF;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+    }
+    .img-fitur {
+        border-radius: 20px;
+    }
+    .fitur-head {
+        color: #2F327D;
+        text-align: center;
+        font-weight: 700;
+    }
+</style>
+
 <div class="col-md-6 offset-md-3" id="landing">
     {% if user.is_authenticated %}
     <h3 id="welcome-text">Welcome {{user.username}}, what's your plan today?</h3>
     {% else %}
     <h3 id="welcome-text">Welcome, what's your plan today?</h3>
     {% endif %}
+    
     <br/>
-    <div class="row row-cols-1 row-cols-md-3 g-4" id="features">
+
+    <div></div>
+
+    <h2 class="fitur-head">OUR FEATURES</h2>
+    <div class="row row-cols-1 row-cols-lg-2 g-4 features-container" id="features">
         <div class="col">
-        <div class="card h-100">
-            <img src="https://images.unsplash.com/photo-1634621388881-cb328098136d?auto=format&fit=crop&q=80&w=1780&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" class="card-img-top" alt="...">
+        <div class="card h-100 features">
+            <img src="https://images.unsplash.com/photo-1634621388881-cb328098136d?auto=format&fit=crop&q=80&w=1780&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" class="card-img-top img-fitur" alt="...">
             <div class="card-body">
             <h5 class="card-title">Collections</h5>
             <p class="card-text">Checks our newest books here!!</p>
             {% if user.is_authenticated %}
-            <a class="btn btn-primary" href="{% url 'home' %}" type="button">Click me!</a>
-            {% else %}
-            <button class="btn btn-primary" data-bs-toggle="modal" type="button" data-bs-target="#exampleModal">Click me!</button>
-            {% endif %}
+            <div class="btn-container text-center">
+                <a class="btn btn-primary fitur-btn" href="{% url 'home' %}" type="button">Click me!</a>
+                {% else %}
+                <button class="btn btn-primary fitur-btn" data-bs-toggle="modal" type="button" data-bs-target="#exampleModal">Click me!</button>
+                {% endif %}
+                </div>
             </div>
         </div>
         </div>
         <div class="col">
-        <div class="card h-100">
-            <img src="https://images.unsplash.com/photo-1634621388881-cb328098136d?auto=format&fit=crop&q=80&w=1780&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" class="card-img-top" alt="...">
-            <div class="card-body">
-            <h5 class="card-title">Book Shelf</h5>
-            <p class="card-text">Rearranges your own collections!!</p>
-            {% if user.is_authenticated %}
-            <a class="btn btn-primary" href="{% url 'home' %}" type="button">Click me!</a>
-            {% else %}
-            <button class="btn btn-primary" data-bs-toggle="modal" type="button" data-bs-target="#exampleModal">Click me!</button>
-            {% endif %}
-            </div>
-        </div>
-        </div>
-        <div class="col">
-        <div class="card h-100">
-            <img src="https://images.unsplash.com/photo-1634621388881-cb328098136d?auto=format&fit=crop&q=80&w=1780&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" class="card-img-top" alt="...">
+        <div class="card h-100 features">
+            <img src="https://images.unsplash.com/photo-1634621388881-cb328098136d?auto=format&fit=crop&q=80&w=1780&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" class="card-img-top  img-fitur" alt="...">
             <div class="card-body">
             <h5 class="card-title">Book Reviews</h5>
             <p class="card-text">Reviews it to gain scores!!</p>
-            {% if user.is_authenticated %}
-            <a class="btn btn-primary" href="{% url 'show_review_page' %}" type="button">Click me!</a>
-            {% else %}
-            <button class="btn btn-primary" data-bs-toggle="modal" type="button" data-bs-target="#exampleModal">Click me!</button>
-            {% endif %}
+            <div class="btn-container text-center">
+                {% if user.is_authenticated %}
+                <a class="btn btn-primary  fitur-btn" href="{% url 'show_review_page' %}" type="button">Click me!</a>
+                {% else %}
+                <button class="btn btn-primary fitur-btn" data-bs-toggle="modal" type="button" data-bs-target="#exampleModal">Click me!</button>
+                {% endif %}
+                </div>
             </div>
         </div>
         </div>
         <div class="col">
-            <div class="card h-100">
-            <img src="https://images.unsplash.com/photo-1634621388881-cb328098136d?auto=format&fit=crop&q=80&w=1780&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" class="card-img-top" alt="...">
+            <div class="card h-100 features">
+            <img src="https://images.unsplash.com/photo-1634621388881-cb328098136d?auto=format&fit=crop&q=80&w=1780&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" class="card-img-top  img-fitur" alt="...">
             <div class="card-body">
                 <h5 class="card-title">Book Loans</h5>
                 <p class="card-text">Get your own favorite books!!</p>
-                {% if user.is_authenticated %}
-                <a class="btn btn-primary" href="{% url 'show_loans_page' %}" type="button">Click me!</a>
-                {% else %}
-                <button class="btn btn-primary" data-bs-toggle="modal" type="button" data-bs-target="#exampleModal">Click me!</button>
-                {% endif %}
+                <div class="btn-container text-center">
+                    {% if user.is_authenticated %}
+                    <a class="btn btn-primary fitur-btn" href="{% url 'show_loans_page' %}" type="button">Click me!</a>
+                    {% else %}
+                    <button class="btn btn-primary fitur-btn" data-bs-toggle="modal" type="button" data-bs-target="#exampleModal">Click me!</button>
+                    {% endif %}
+                </div>
             </div>
             </div>
         </div>
         <div class="col">
-        <div class="card h-100">
-            <img src="https://images.unsplash.com/photo-1634621388881-cb328098136d?auto=format&fit=crop&q=80&w=1780&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" class="card-img-top" alt="...">
+        <div class="card h-100 features">
+            <img src="https://images.unsplash.com/photo-1634621388881-cb328098136d?auto=format&fit=crop&q=80&w=1780&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" class="card-img-top  img-fitur" alt="...">
             <div class="card-body">
             <h5 class="card-title">Book Request</h5>
             <p class="card-text">Nothing interested here? request it ASAP!!</p>
-            {% if user.is_authenticated %}
-            <a class="btn btn-primary" href="{% url 'show_request_page' %}" type="button">Click me!</a>
-            {% else %}
-            <button class="btn btn-primary" data-bs-toggle="modal" type="button" data-bs-target="#exampleModal">Click me!</button>
-            {% endif %}
+            <div class="btn-container text-center">
+                {% if user.is_authenticated %}
+                <a class="btn btn-primary fitur-btn" href="{% url 'show_request_page' %}" type="button">Click me!</a>
+                {% else %}
+                <button class="btn btn-primary fitur-btn" data-bs-toggle="modal" type="button" data-bs-target="#exampleModal">Click me!</button>
+                {% endif %}
             </div>
         </div>
         </div>
