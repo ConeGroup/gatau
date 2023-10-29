@@ -22,9 +22,7 @@ def show_request_page(request):
     book_req = BookReq.objects.filter(user=request.user)
 
     context = {
-        'my_app': 'Marpellus Cenep',
         'name': request.user.username,
-        'class': 'PBP C',
         # 'last_login': request.COOKIES['last_login']
     }
 

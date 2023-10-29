@@ -56,7 +56,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="resetForm()">Close</button>
-                <button type="submit" class="btn btn-primary" id="button_add" data-bs-dismiss="modal" onclick="addRequest()" disabled>Add Book Request</button>
+                <button type="submit" class="btn btn-primary" id="button_add" data-bs-dismiss="modal" onclick="addRequest()" onmouseover="toggleSubmit()" disabled>Add Book Request</button>
             </div>
         </div>
     </div>
@@ -118,8 +118,6 @@
             requestItem.forEach((item) => {
                 console.log(filterBy.toLowerCase())
                 if (item.fields[String(filterBy).toLowerCase()] && item.fields[String(filterBy).toLowerCase()].toLowerCase().includes(String(searchItem).toLowerCase())) {
-                    // console.log("hello1");
-                    // console.log('Found matching item:', item);
                     
                     htmlString += `
                     \n<div class="col-sm-6 col-md-4 col-lg-3" id="card${item.pk}">
@@ -279,7 +277,7 @@
         console.log("ini id-nya" + item_request.pk)
         if (document.getElementById("button_add").innerHTML === "Update Request") {
             document.getElementById("button_add").onclick = function() {
-                updateRequest(id); // Call your updateRequest function here
+                updateRequest(id);
             };
         }
         
@@ -354,13 +352,11 @@
             document.getElementById('card-year' + id).innerHTML = target.fields.year;
             document.getElementById('card-publisher' + id).innerHTML = target.fields.publisher;
             document.getElementById('card-initial-review' + id).innerHTML = target.fields.initial_review;
-            // console.log("bello")
             }
     }
 
     function resetForm() {
         document.getElementById("form").reset()
-        // console.log("yey")
     }
 
     async function updateRequest(id) {
@@ -381,7 +377,6 @@
     }
 
     if(document.getElementById("button_add").innerHTML === "Add Book Request") {
-        console.log("belloerror")
         document.getElementById("button_add").onclick = addRequest
     }
     
