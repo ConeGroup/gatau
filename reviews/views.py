@@ -187,6 +187,7 @@ def edit_review(request, review_id):
         review.is_recommended = bool(is_recommended)
         review.user = request.user
         review.save()
+        
 
         return HttpResponse(b"UPDATED", status=201)
 
