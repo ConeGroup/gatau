@@ -31,8 +31,8 @@ Fitur ini memungkinkan pengguna untuk menambahkan ulasan terhadap suatu buku. Di
 Pada fitur ini, pengguna dapat menambahkan buku-buku yang ingin dipinjamnya. Selain itu, pengguna juga dapat melihat daftar buku-buku yang dipinjam serta mengembalikan buku yang telah dipinjamnya (menghapus dari daftar peminjaman).
 ### 📔 Collections
 Fitur ini menampilkan daftar buku-buku yang tersedia di `Librarium`. Pengguna juga dapat membuat suatu kelompok/kategori buku (Liked/Favorite/lainnya) dimana pengguna dapat melihat dan menambahkan daftar buku dalam koleksi tersebut. Modul ini mengimplementasikan _list of_ buku.
-### 📚 Bookshelf
-Fitur `Bookshelf` berfungsi sebagai rak buku virtual. Fitur ini menampilkan semua daftar buku yang tersedia di `Librarium`. Model ini mengimplementasikan _list of_ model yang ada pada aplikasi web `Librarium`.
+### 📚 User Profile
+Fitur `Userprofile` berfungsi sebagai informasi pengguna librarium.
 ### 📥 Book Requests
 Modul ini memungkinkan pengguna untuk meminta pengajuan buku baru. Pengguna dapat menginput informasi terkait buku yang diinginkan yang kemudian akan diverifikasi terlebih dahulu oleh admin.
 
@@ -48,3 +48,6 @@ Berikut ini hal-hal yang dapat dilakukan oleh pengguna yang belum log in:
 - Memberikan kritik dan saran.
 ### User yang sudah login 🔓
 Pengguna yang telah login merupakan pengguna yang sudah melakukan _register_. Pengguna yang telah login dapat mengakses seluruh fitur yang tersedia dalam Liberarium, diantaranya Book Reviews, Book Loans, Collections, Bookshelf, dan Book Request.
+
+### Tautan Situs
+http://librarium-c01-tk.pbp.cs.ui.ac.id.
