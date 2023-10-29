@@ -1,0 +1,471 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% include 'navbar.html' %}
+<style>
+    /* Gaya Container Utama */
+    .container {
+        background-color: #f7f7f7; /* Warna latar belakang */
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Gaya untuk judul besar */
+    h1 {
+        font-size: 32px;
+        color: #333; /* Warna teks */
+    }
+
+    /* Gaya untuk judul sedang */
+    h2 {
+        font-size: 24px;
+        color: #555; /* Warna teks yang lebih gelap */
+    }
+
+    /* Gaya untuk tombol */
+    .btn {
+        color: #fff; /* Warna teks tombol */
+        border: none;
+        border-radius: 5px;
+        padding: 10px 20px;
+        margin: auto;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    /* Gaya saat mengarahkan kursor ke card */
+    .card:hover {
+        transform: scale(1.02); /* Membesarkan card saat dihover */
+    }
+
+    /* Gaya untuk judul card */
+    .card-title {
+        font-size: 20px;
+        font-weight: bold;
+        color: #333; /* Warna teks */
+    }
+
+    /* Gaya untuk teks di dalam card */
+    .card-text {
+        font-size: 16px;
+        color: #555; /* Warna teks yang lebih gelap */
+    }
+
+
+    /* Gaya untuk judul yang di tengah */
+    .centered-title {
+        text-align: center; /* Pusatkan teks */
+        background-color: #F4A460; /* Warna latar belakang */
+        color: #FFFFFF; /* Warna teks */
+        padding: 10px; /* Spasi dalam */
+    }
+
+    .centered-buttons {
+        text-align: center; /* Pusatkan elemen secara horizontal */
+    }
+
+    .centered-button-container {
+        display: flex;
+        justify-content: center; /* Pusatkan elemen secara horizontal */
+    }
+
+    /* Gaya tombol */
+    .centered-button-container .btn {
+        margin: 10px; /* Beri jarak antara tombol */
+    }
+
+</style>
+
+
+<div class="container">
+    <h1 class="mt-5 centered-title">Welcome, {{ name }}!!! <br> Let's Make Your Collections </h1>
+    <ul class="list-group" id="collections-list">
+        <!-- Daftar koleksi akan diperbarui dengan JavaScript -->
+    </ul>
+</div>
+
+<div class="container mt-5 centered-buttons">
+    <h2 class="centered-title">Add a New Collection</h2>
+    <button id="show-create-collection" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#create-collection-modal">Create Collection</button>
+</div>
+
+<div class="container mt-5 centered-buttons">
+    <h2 class="centered-title">Add Book to Collection</h2>
+    <button id="show-add-book" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add-book-modal">Add Book to Collection</button>
+</div>
+
+
+<!-- Modal for Create Collection -->
+<div class="modal fade" id="create-collection-modal" tabindex="-1" aria-labelledby="create-collection-modal-label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="create-collection-modal-label">Create a New Collection</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="create-collection-form">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="collection_name" class="col-form-label">Collection Name:</label>
+                        <input type="text" class="form-control" id="collection_name" name="name" required>
+                    </div>
+                    <button type="button" id="create-collection-button" class="btn btn-primary">Create</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Add Book to Collection -->
+<div class="modal fade" id="add-book-modal" tabindex="-1" aria-labelledby="add-book-modal-label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="add-book-modal-label">Add Book to Collection</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="add-book-form">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <select name="collection_id" class="form-control" required>
+                            {% for collection in collections %}
+                                <option value="{{ collection.id }}">{{ collection.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <select name="book_id" class="form-control" required>
+                            {% for book in books %}
+                                <option value="{{ book.id }}">{{ book.title }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="button" id="add-book-button" class="btn btn-success">Add Book</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    // Event listener untuk tombol "Create" pada modal
+    document.getElementById("create-collection-button").addEventListener("click", createCollection);
+    // Fungsi untuk mengambil daftar koleksi dari JSON dan memperbarui tampilan
+    async function getCollections() {
+        try {
+            const response = await fetch("{% url 'collection:get_collection_json' %}");
+            if (response.ok) {
+                const data = await response.json();
+                console.log(data);
+
+                const collectionsList = document.querySelector("#collections-list");
+                collectionsList.innerHTML = ''; // Kosongkan daftar koleksi sebelum memperbarui
+
+                data.forEach((collection) => {
+                    const collectionContainer = document.createElement("div");
+                    collectionContainer.className = "col mb-3 ml-7";
+                    collectionsList.appendChild(collectionContainer);
+
+                    const card = document.createElement("div");
+                    card.className = "shadow mb-3 bg-body";
+                    collectionContainer.appendChild(card);
+
+                    const cardContent = document.createElement("div");
+                    cardContent.className = "card";
+                    card.appendChild(cardContent);
+
+                    const cardBody = document.createElement("div");
+                    cardBody.className = "card-body";
+                    cardContent.appendChild(cardBody);
+
+                    const cardTitle = document.createElement("h2");
+                    cardTitle.className = "card-title font-weight-bold";
+                    cardTitle.textContent = `Collection: ${collection.name}`;
+                    cardBody.appendChild(cardTitle);
+
+                    const booksHeader = document.createElement("h4");
+                    booksHeader.textContent = "Books in this Collection:";
+                    cardBody.appendChild(booksHeader);
+
+                    const booksList = document.createElement("div"); // Menggunakan div untuk menampilkan daftar buku
+                    booksList.className = "row";
+
+                    let bookCount = 0; // Menghitung jumlah buku dalam baris saat ini
+                    collection.books.forEach((book) => {
+                        if (bookCount % 4 === 0 && bookCount !== 0) {
+                            // Setiap 4 buku, tambahkan baris baru
+                            const rowDiv = document.createElement("div");
+                            rowDiv.className = "w-100"; // Baris baru
+                            booksList.appendChild(rowDiv);
+                        }
+
+                        // Kolom untuk setiap buku
+                        const bookColumn = document.createElement("div");
+                        bookColumn.className = "col-md-3"; // Ubah sesuai kebutuhan tampilan
+
+                        const bookCard = document.createElement("div");
+                        bookCard.className = "card mb-3";
+                        bookColumn.appendChild(bookCard);
+
+                        const bookImage = document.createElement("img");
+                        bookImage.src = book.image_l;
+                        bookImage.alt = book.title;
+                        bookImage.className = "card-img-top";
+                        bookCard.appendChild(bookImage);
+
+                        const bookCardBody = document.createElement("div");
+                        bookCardBody.className = "card-body";
+                        bookCard.appendChild(bookCardBody);
+
+                        const bookTitle = document.createElement("h5");
+                        bookTitle.className = "card-title";
+                        bookTitle.textContent = book.title;
+                        bookCardBody.appendChild(bookTitle);
+
+                        const bookAuthor = document.createElement("p");
+                        bookAuthor.className = "card-text";
+                        bookAuthor.textContent = `Author: ${book.author}`;
+                        bookCardBody.appendChild(bookAuthor);
+
+                        booksList.appendChild(bookColumn);
+                        bookCount++;
+                    });
+
+                    cardBody.appendChild(booksList);
+
+                    const deleteButton = document.createElement("button");
+                    deleteButton.className = "btn btn-danger";
+                    deleteButton.textContent = "Delete Collection";
+                    deleteButton.addEventListener("click", () => deleteCollection(collection.id));
+                    cardBody.appendChild(deleteButton);
+
+                    const editButton = document.createElement("a");
+                    editButton.className = "btn btn-primary";
+                    editButton.href = `/collection/edit-collection/${collection.id}/`;
+                    editButton.textContent = "Edit Collection";
+                    cardBody.appendChild(editButton);
+                });
+                    } else {
+                        console.error("Failed to fetch data");
+                    }
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+
+            getCollections();
+
+
+
+
+    // Fungsi untuk membuat koleksi baru melalui AJAX
+    async function createCollection() {
+        const collectionNameInput = document.querySelector("#collection_name");
+        const formData = new FormData(document.querySelector('#create-collection-form'));
+
+        try {
+            const response = await fetch("{% url 'collection:create_collection_ajax' %}", {
+                method: "POST",
+                body: formData,
+            });
+
+            if (response.ok) {
+                collectionNameInput.value = ''; // Mengosongkan input nama koleksi
+                $('#create-collection-modal').modal('hide');
+                getCollections(); // Perbarui daftar koleksi
+            } else {
+                console.error("Failed to create collection");
+            }
+        } catch (error) {
+            console.error("Failed to create collection:", error);
+        }
+    }
+
+    // Fungsi untuk menghapus koleksi
+    async function deleteCollection(collectionId) {
+        try {
+            const response = await fetch(`/collection/delete_collection/${collectionId}/`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRFToken': csrftoken, // Sertakan token CSRF
+                },
+            });
+
+            if (response.ok) {
+                // Koleksi berhasil dihapus, perbarui tampilan
+                getCollections();
+            } else {
+                console.error('Failed to delete collection');
+            }
+        } catch (error) {
+            console.error('Failed to delete collection:', error);
+        }
+    }
+
+    // Event listener untuk tombol "Create Collection" pada modal
+    document.getElementById("show-create-collection").addEventListener("click", function () {
+        const collectionNameInput = document.querySelector("#collection_name");
+        collectionNameInput.value = ''; // Mengosongkan input nama koleksi
+    });
+
+    document.getElementById("add-book-button").addEventListener("click", addBookToCollection);
+
+
+    async function addBookToCollection() {
+        const collectionId = document.querySelector("select[name='collection_id']").value;
+        const bookId = document.querySelector("select[name='book_id']").value;
+
+        const formData = new FormData();
+        formData.append("collection_id", collectionId);
+        formData.append("book_id", bookId);
+
+        try {
+            const response = await fetch("{% url 'collection:add_book_to_collection_ajax' %}", {
+                method: "POST",
+                body: formData,
+            });
+
+            if (response.ok) {
+                // Berhasil menambahkan buku ke koleksi
+                // Anda dapat menambahkan logika lain di sini jika diperlukan
+                console.log("Book added to collection successfully");
+                // Tutup modal setelah menambahkan buku
+                $('#add-book-modal').modal('hide');
+                
+                // Ambil data koleksi yang baru setelah menambahkan buku
+                const updatedCollections = await getCollectionsData();
+                
+                // Perbarui tampilan daftar koleksi dengan data yang baru
+                updateCollectionsView(updatedCollections);
+            } else {
+                console.error("Failed to add book to collection");
+            }
+        } catch (error) {
+            console.error("Failed to add book to collection:", error);
+        }
+    }
+
+    // ...
+
+    // Fungsi untuk mengambil data koleksi tanpa memperbarui tampilan
+    async function getCollectionsData() {
+        try {
+            const response = await fetch("{% url 'collection:get_collection_json' %}");
+            if (response.ok) {
+                const data = await response.json();
+                console.log(data);
+                return data; // Mengembalikan data koleksi yang baru
+            } else {
+                console.error("Failed to fetch data");
+                return null;
+            }
+        } catch (error) {
+            console.error(error);
+            return null;
+        }
+    }
+
+    // Fungsi untuk memperbarui tampilan daftar koleksi dengan data yang baru
+    // Fungsi untuk memperbarui tampilan daftar koleksi dengan data yang baru
+    async function updateCollectionsView(collections) {
+        const collectionsList = document.querySelector("#collections-list");
+        collectionsList.innerHTML = ''; // Kosongkan daftar koleksi sebelum memperbarui
+
+        collections.forEach((collection) => {
+            const collectionContainer = document.createElement("div");
+            collectionContainer.className = "col mb-3 ml-7";
+            collectionsList.appendChild(collectionContainer);
+
+            const card = document.createElement("div");
+            card.className = "shadow mb-3 bg-body";
+            collectionContainer.appendChild(card);
+
+            const cardContent = document.createElement("div");
+            cardContent.className = "card";
+            card.appendChild(cardContent);
+
+            const cardBody = document.createElement("div");
+            cardBody.className = "card-body";
+            cardContent.appendChild(cardBody);
+
+            const cardTitle = document.createElement("h2");
+            cardTitle.className = "card-title font-weight-bold";
+            cardTitle.textContent = `Collection: ${collection.name}`;
+            cardBody.appendChild(cardTitle);
+
+            const booksHeader = document.createElement("h4");
+            booksHeader.textContent = "Books in this Collection:";
+            cardBody.appendChild(booksHeader);
+
+            const booksList = document.createElement("div"); // Menggunakan div untuk menampilkan daftar buku
+            booksList.className = "row";
+
+            let bookCount = 0; // Menghitung jumlah buku dalam baris saat ini
+            collection.books.forEach((book) => {
+                if (bookCount % 4 === 0 && bookCount !== 0) {
+                    // Setiap 4 buku, tambahkan baris baru
+                    const rowDiv = document.createElement("div");
+                    rowDiv.className = "w-100"; // Baris baru
+                    booksList.appendChild(rowDiv);
+                }
+
+                // Kolom untuk setiap buku
+                const bookColumn = document.createElement("div");
+                bookColumn.className = "col-md-3"; // Ubah sesuai kebutuhan tampilan
+
+                const bookCard = document.createElement("div");
+                bookCard.className = "card mb-3";
+                bookColumn.appendChild(bookCard);
+
+                const bookImage = document.createElement("img");
+                bookImage.src = book.image_l;
+                bookImage.alt = book.title;
+                bookImage.className = "card-img-top";
+                bookCard.appendChild(bookImage);
+
+                const bookCardBody = document.createElement("div");
+                bookCardBody.className = "card-body";
+                bookCard.appendChild(bookCardBody);
+
+                const bookTitle = document.createElement("h5");
+                bookTitle.className = "card-title";
+                bookTitle.textContent = book.title;
+                bookCardBody.appendChild(bookTitle);
+
+                const bookAuthor = document.createElement("p");
+                bookAuthor.className = "card-text";
+                bookAuthor.textContent = `Author: ${book.author}`;
+                bookCardBody.appendChild(bookAuthor);
+
+                booksList.appendChild(bookColumn);
+                bookCount++;
+            });
+
+            cardBody.appendChild(booksList);
+
+            const deleteButton = document.createElement("button");
+            deleteButton.className = "btn btn-danger";
+            deleteButton.textContent = "Delete Collection";
+            deleteButton.addEventListener("click", () => deleteCollection(collection.id));
+            cardBody.appendChild(deleteButton);
+
+            const editButton = document.createElement("a");
+            editButton.className = "btn btn-primary";
+            editButton.href = `/collection/edit-collection/${collection.id}/`;
+            editButton.textContent = "Edit Collection";
+            cardBody.appendChild(editButton);
+        });
+    }
+
+
+
+
+</script>
+</div>
+{% endblock %}
