@@ -53,3 +53,6 @@ def delete_book(request, book_id):
 def get_book_json(request):
     books = Book.objects.all()
     return HttpResponse(serializers.serialize('json', books))
+
+def show_loans_page(request):
+    return HttpResponseRedirect(reverse('show_loans'))
