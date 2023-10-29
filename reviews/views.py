@@ -105,6 +105,10 @@ def get_review_by_user_json(request):
     return JsonResponse({'reviews': review_data})
 
 def get_book_json(request):
+    books = Book.objects.all()
+    return HttpResponse(serializers.serialize('json', books))
+
+def get_book_user(request):
     user_reviewed_books = Review.objects.filter(user=request.user).values_list('book', flat=True)
     books = Book.objects.exclude(pk__in=user_reviewed_books)
 
