@@ -61,7 +61,7 @@
                 <h5 class="card-title">Book Loans</h5>
                 <p class="card-text">Get your own favorite books!!</p>
                 {% if user.is_authenticated %}
-                <a class="btn btn-primary" href="{% url 'home' %}" type="button">Click me!</a>
+                <a class="btn btn-primary" href="{% url 'show_loans_page' %}" type="button">Click me!</a>
                 {% else %}
                 <button class="btn btn-primary" data-bs-toggle="modal" type="button" data-bs-target="#exampleModal">Click me!</button>
                 {% endif %}
@@ -75,7 +75,7 @@
             <h5 class="card-title">Book Request</h5>
             <p class="card-text">Nothing interested here? request it ASAP!!</p>
             {% if user.is_authenticated %}
-            <a class="btn btn-primary" href="{% url 'home' %}" type="button">Click me!</a>
+            <a class="btn btn-primary" href="{% url 'show_request_page' %}" type="button">Click me!</a>
             {% else %}
             <button class="btn btn-primary" data-bs-toggle="modal" type="button" data-bs-target="#exampleModal">Click me!</button>
             {% endif %}
