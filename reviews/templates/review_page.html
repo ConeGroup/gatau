@@ -95,7 +95,7 @@
 
     <script>
          async function getBooks() {
-            return fetch("{% url 'reviews:get_book_json' %}").then((res) => res.json())
+            return fetch("{% url 'reviews:get_book_user' %}").then((res) => res.json())
         }
 
     async function openReviewModalWithBookData(bookTitle, bookAuthor, bookYear, bookISBN, bookCoverURL, bookId) {
