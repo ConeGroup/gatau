@@ -15,6 +15,9 @@ from django.contrib.auth import update_session_auth_hash
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse, HttpResponseBadRequest
+from loans.models import LoansBook
+from reviews.models import Review
+from bookrequest.models import BookReq
 
 # Create your views here.
 
@@ -23,9 +26,13 @@ from django.http import HttpResponse, HttpResponseBadRequest
 
 @login_required
 def show_userprofile(request):
+    CountLoansBook = LoansBook.objects.filter(user = request.user).count()
+    CountReviewBook = Review.objects.filter(user = request.user).count()
+    CountRequestBook = BookReq.objects.filter(user = request.user).count()
     context = {
-        'name': 'Pak Bepe',
-        'class': 'PBP A'
+        'CountLoansBook': CountLoansBook,
+        'CountReviewBook': CountReviewBook,
+        'CountRequestBook': CountRequestBook
     }
 
     return render(request, "userprofile.html", context)
@@ -83,7 +90,6 @@ def change_password(request):
             return redirect('userprofile.html')
     else:
         form = PasswordChangeForm(request.user)
-    print("oeyy")
     return render(request, 'change_password.html', {'form': form})
 
 

@@ -1,81 +1,55 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container-fluid">
-      <a class="navbar-brand" href="{% url 'home' %}">librarium</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+{% load static %}
+
+<style>
+  .nav-link{
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 600;
+  }
+</style>
+<nav class="navbar navbar-expand-lg nav1" style="background-color: #ffffff; gap:40px;">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">
+      <img src="{% static 'img/Logo1.png' %}" alt="logo">
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent" style="flex-direction: row-reverse;">
+      <div class="d-flex justify-content-end align-items-center gap-4">
+        <ul class="navbar-nav">
           <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="#">Home</a>
+            <a class="nav-link" aria-current="page" href="{% url 'home' %}">Home</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">Link</a>
-          </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              Dropdown
-            </a>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="/collection/">Action</a></li>
-              <li><a class="dropdown-item" href="#">Another action</a></li>
-              <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="#">Something else here</a></li>
-            </ul>
+            <a class="nav-link" href="/collection/">Collections</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link disabled" aria-disabled="true">Disabled</a>
+            <a class="nav-link" href="{% url 'show_request_page' %}">Book Request</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'show_review_page' %}">Book Review</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'show_loans_page' %}">Book Loans</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'userprofile' %}">Account</a>
           </li>
         </ul>
         <form class="d-flex" role="search">
           <!-- <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"> -->
           {% if user.is_authenticated %}
-          <div class="dropdown" style="display: flex; align-items: center;">
-            <span class="d-md-block dropdown-toggle ps-2 me-3" href="#" id="navbarDropdown" data-bs-toggle="dropdown" role="button" aria-expanded="false" style="color: white;">{{user.username}}</span>
-            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile" aria-hidden="true" data-popper-placement="bottom-end" style="position: absolute; inset: 0px 0px auto auto; margin: 0px; transform: translate3d(-16px, 38px, 0px);">
-              <li class="dropdown-header">
-                <h6>{{user.username}}</h6>
-              </li>
-              <li>
-                <hr class="dropdown-divider">
-              </li>
-  
-              <li>
-                <a class="dropdown-item d-flex align-items-center" href="{% url 'userprofile' %}">
-                  <i class="bi bi-person"></i>
-                  <span>Account Settings</span>
-                </a>
-              </li>
-              <li>
-                <hr class="dropdown-divider">
-              </li>
-
-  
-              <li>
-                <a class="dropdown-item d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#exampleModal2" href='#'>
-                  <i class="bi bi-question-circle"></i>
-                  <span>Need Help?</span>
-                </a>
-              </li>
-              <li>
-                <hr class="dropdown-divider">
-              </li>
-  
-              <li>
-                <a class="dropdown-item d-flex align-items-center" href="{% url 'logout' %}">
-                  <i class="bi bi-box-arrow-right"></i>
-                  <span>Sign Out</span>
-                </a>
-              </li>
-  
-            </ul>
+          <div class="dropdown d-flex gap-4">
             <a class="btn btn-outline-danger" type="submit" href="{% url 'logout' %}">Logout</a>
           </div> 
           {% else %}
           <button class="btn btn-outline-success me-3" type="button" data-bs-toggle="modal" data-bs-target="#exampleModal">Login</button>
-          <a class="btn btn-outline-info" type="submit" href="{% url 'register' %}">Register</a>
+          <a class="btn btn-outline-info" type="submit" href="{% url 'register' %}" style="color: #00A9FF;text-align: center;font-size: 16px;font-style: normal;font-weight: 600;line-height: normal;">Register</a>
           {% endif %}
         </form>
       </div>
     </div>
+  </div>
 </nav>
+

@@ -11,17 +11,19 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
-import os
+import environ # Tambahkan kode berikut
+import os # Tambahkan kode berikut
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+env = environ.Env()
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-^wz5r+pw(46on8coikuh3*1p$djrx3!&0660d4rvuan%jgrm!7'
+PRODUCTION = env.bool('PRODUCTION', False)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -88,6 +90,13 @@ DATABASES = {
     }
 }
 
+# Set database settings automatically using DATABASE_URL.
+if PRODUCTION:
+    DATABASES = {
+        'default': env.db('DATABASE_URL')
+    }
+    DATABASES["default"]["ATOMIC_REQUESTS"] = True
+
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -122,14 +131,16 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
-
 STATIC_URL = 'static/'
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'reviews/static'),  # Add the 'static' folder of your app
+    os.path.join(BASE_DIR, 'userprofile/static'),  # Add the 'static' folder of your app
+    os.path.join(BASE_DIR, 'bookrequest/static'),
+    os.path.join(BASE_DIR, 'home/static')
 ]
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static_root')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
