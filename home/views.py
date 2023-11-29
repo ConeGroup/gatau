@@ -1,4 +1,3 @@
-import datetime
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
@@ -25,6 +24,7 @@ def user_home(request):
     }
     return render(request, "homepage.html", context)
 
+@csrf_exempt
 def register(request):
     form = RegisterForm()
 
@@ -38,6 +38,7 @@ def register(request):
     context = {'form':form}
     return render(request, 'register.html', context)
 
+@csrf_exempt
 def login_user(request):
     # Check to see if someone logging in
     if request.method == 'POST':
@@ -54,7 +55,7 @@ def login_user(request):
         else: 
             return HttpResponse(messages.info(request, 'Sorry, incorrect username or password. Please try again.'), status=400)
 
-
+@csrf_exempt
 def logout_user(request):
     logout(request)
     messages.success(request, "You have been logged out")
