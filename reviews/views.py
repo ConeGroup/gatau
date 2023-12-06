@@ -232,3 +232,21 @@ def add_review_form(request):
             
     context = {'form':form}
     return render(request, 'create_review.html', context)
+
+# NEW FOR MOBDEV
+def get_book_by_id_json_mob(request, id):
+    book = Book.objects.get(pk=id)
+    print(book)
+    book_data = {
+        'model': "book.book",
+        'pk': id,
+        'fields':{
+            'title': book.title,
+            'author': book.author,
+            'year': book.year,
+            'publisher': book.publisher,
+            'image_m': book.image_m,
+            'image_l': book.image_l
+        }
+    }
+    return JsonResponse(book_data)
