@@ -28,4 +28,5 @@ urlpatterns = [
     path('reviews/', include('reviews.urls')),
     path('book-request/', include('bookrequest.urls')),
     path('show_loans/', include('loans.urls')),
+    path('auth/', include('authentication.urls')),
 ]
