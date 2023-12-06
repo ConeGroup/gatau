@@ -134,7 +134,6 @@ def add_review_ajax(request):
         else:
             is_recommended = False
 
-
         book = Book.objects.get(pk = book_id)
 
         review = Review(
