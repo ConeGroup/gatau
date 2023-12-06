@@ -6,6 +6,7 @@ from home.views import register
 from userprofile.views import show_userprofile
 from bookrequest.views import show_request_page
 from loans.views import show_loans_page
+from collection.views import show_collection
 
 urlpatterns = [
     path('', home, name='home'),
@@ -17,4 +18,5 @@ urlpatterns = [
     path('book-review/', show_review_page, name='show_review_page'),
     path('../book-request/', show_request_page, name='show_request_page'),
     path('../show_loans/', show_loans_page, name='show_loans_page'),
+    path('../show_collection/', show_collection, name='show_collection'),
 ]

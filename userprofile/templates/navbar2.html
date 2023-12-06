@@ -31,10 +31,10 @@
           <!-- <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"> -->
           {% if user.is_authenticated %}
           <div class="dropdown" style="display: flex; align-items: center;">
-            <span class="d-md-block dropdown-toggle ps-2 me-3" href="#" id="navbarDropdown" data-bs-toggle="dropdown" role="button" aria-expanded="false" style="color: white;">{{user.username}}</span>
+            <span class="d-md-block dropdown-toggle ps-2 me-3" href="#" id="usernametextprofiledetailsdropdown1" data-bs-toggle="dropdown" role="button" aria-expanded="false" style="color: white;">{{user.username}}</span>
             <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile" aria-hidden="true" data-popper-placement="bottom-end" style="position: absolute; inset: 0px 0px auto auto; margin: 0px; transform: translate3d(-16px, 38px, 0px);">
               <li class="dropdown-header">
-                <h6>{{user.username}}</h6>
+                <h6 id="usernametextprofiledetailsdropdown2">{{user.username}}</h6>
               </li>
               <li>
                 <hr class="dropdown-divider">
@@ -79,3 +79,10 @@
       </div>
     </div>
 </nav>
+
+{% load static %}
+<script type="application/javascript" src="{% static 'js/userprofile.js' %}">
+
+
+  
+</script>
