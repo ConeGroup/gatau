@@ -1,4 +1,5 @@
 import datetime
+import json
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 from bookrequest.forms import BookReqForm
@@ -79,4 +80,27 @@ def update_request(request, id):
         return HttpResponse(b"UPDATED", status=201)
 
     return HttpResponseNotFound()
+
+@csrf_exempt
+def create_request_flutter(request):
+    if request.method == 'POST':
+        
+        data = json.loads(request.body)
+
+        new_product = BookReq.objects.create(
+            user = request.user,
+            title = data["title"],
+            author = data["author"],
+            isbn = int(data["isbn"]),
+            year = int(data["year"]),
+            publisher = data["publisher"],
+            initial_review = data["initial_review"],
+            image_m = data["image_m"],
+        )
+
+        new_product.save()
+
+        return JsonResponse({"status": "success"}, status=200)
+    else:
+        return JsonResponse({"status": "error"}, status=401)
     
