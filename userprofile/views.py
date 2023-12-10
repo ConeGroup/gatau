@@ -37,6 +37,18 @@ def show_userprofile(request):
 
     return render(request, "userprofile.html", context)
 
+def show_userprofile_api(request):
+    CountLoansBook = LoansBook.objects.filter(user=request.user).count()
+    CountReviewBook = Review.objects.filter(user=request.user).count()
+    CountRequestBook = BookReq.objects.filter(user=request.user).count()
+
+    data = {
+        'CountLoansBook': CountLoansBook,
+        'CountReviewBook': CountReviewBook,
+        'CountRequestBook': CountRequestBook
+    }
+
+    return JsonResponse(data)
 
 @login_required
 @csrf_exempt
