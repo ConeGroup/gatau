@@ -10,6 +10,9 @@ from reviews.models import Review
 from reviews.forms import ReviewForm
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.models import User
+
+
 
 @login_required(login_url='../login')
 def show_main(request):
@@ -292,3 +295,27 @@ def get_rev_by_user_json_mob(request):
     return HttpResponse(serializers.serialize('json', reviews))
 
     # return JsonResponse({'reviews': review_data})
+def get_rev_by_book_json_mob(request, id):
+    book = Book.objects.get(pk=id)
+    reviews = Review.objects.filter(book = book)
+    review_data = []
+    for review in reviews:
+        review_data.append({
+            'model': 'reviews.review',
+            'pk' : review.pk,
+            'fields':{
+                'user': review.user.pk,
+                'book': review.book.pk,
+                'book_review_desc': review.book_review_desc,
+                'rating': review.rating,
+                'is_recommended': review.is_recommended,
+                'date_added': review.date_added,
+            }
+        })
+    return HttpResponse(serializers.serialize('json', reviews))
+
+def get_user_by_id_mob(request, id):
+    user = User.objects.get(pk=id)
+    user_data = user.username
+    return HttpResponse(user_data)
+
