@@ -33,6 +33,15 @@ def get_request_item_json(request):
     request_item = BookReq.objects.filter(user=request.user)
     return HttpResponse(serializers.serialize('json', request_item))
 
+@login_required(login_url='/auth/login/')
+def show_json(request):
+    data = BookReq.objects.filter(user=request.user)
+    return HttpResponse(serializers.serialize("json", data), content_type="application/json")
+
+def show_json_all(request):
+    data = BookReq.objects.all()
+    return HttpResponse(serializers.serialize("json", data), content_type="application/json")
+
 @csrf_exempt
 def create_request(request):
     if request.method == 'POST':
@@ -77,9 +86,9 @@ def update_request(request, id):
 
         request_item.save()
 
-        return HttpResponse(b"UPDATED", status=201)
+        return JsonResponse({"status": "success"}, status=200)
 
-    return HttpResponseNotFound()
+    return JsonResponse({"status": "error"}, status=401)
 
 @csrf_exempt
 def create_request_flutter(request):
