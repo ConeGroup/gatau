@@ -18,6 +18,7 @@ from django.http import HttpResponse, HttpResponseBadRequest
 from loans.models import LoansBook
 from reviews.models import Review
 from bookrequest.models import BookReq
+import json
 
 # Create your views here.
 
@@ -37,6 +38,20 @@ def show_userprofile(request):
 
     return render(request, "userprofile.html", context)
 
+def show_userprofile_api(request):
+
+
+    CountLoansBook = LoansBook.objects.filter(user=request.user).count()
+    CountReviewBook = Review.objects.filter(user=request.user).count()
+    CountRequestBook = BookReq.objects.filter(user=request.user).count()
+
+    data = {
+        'CountLoansBook': CountLoansBook,
+        'CountReviewBook': CountReviewBook,
+        'CountRequestBook': CountRequestBook
+    }
+
+    return JsonResponse(data)
 
 @login_required
 @csrf_exempt
@@ -106,3 +121,23 @@ def change_password_ajax(request):
         form = PasswordChangeForm(request.user)   
      
     return JsonResponse({'message': 'Invalid request.'}, status=400)
+
+@csrf_exempt
+def change_password_flutter(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            form = PasswordChangeForm(request.user, data)
+            if form.is_valid():
+                user = form.save()
+                update_session_auth_hash(request, user)
+                return JsonResponse({'message': 'Password successfully changed'}, status=201)
+            else:
+                return JsonResponse({'error': form.errors}, status=400)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON format'}, status=400)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+
+

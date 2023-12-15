@@ -1,3 +1,4 @@
+import json
 from django.shortcuts import render
 from django.urls import reverse
 from django.http import HttpResponseRedirect
@@ -13,7 +14,6 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from book.models import Book
-
 
 # Create your views here.
 @login_required(login_url='/login')
@@ -56,3 +56,22 @@ def get_book_json(request):
 
 def show_loans_page(request):
     return HttpResponseRedirect(reverse('show_loans'))
+
+@csrf_exempt
+def create_loans_flutter(request):
+    if request.method == 'POST':
+        
+        data = json.loads(request.body)
+
+        new_product = LoansBook.objects.create(
+            number_book = data["number_book"],
+            date_return = data["date_return"],
+            user = request.user,
+        )
+
+        new_product.save()
+
+        return JsonResponse({"status": "success"}, status=200)
+    else:
+        return JsonResponse({"status": "error"}, status=401)
+
