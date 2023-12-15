@@ -260,19 +260,21 @@ def create_review_flutter(request):
 # NEW FOR MOBDEV
 def get_book_by_id_json_mob(request, id):
     book = Book.objects.get(pk=id)
-    print(book)
     book_data = {
         'model': "book.book",
         'pk': id,
         'fields':{
+            'ISBN': book.ISBN,
             'title': book.title,
             'author': book.author,
             'year': book.year,
             'publisher': book.publisher,
+            'image_s': book.image_s,
             'image_m': book.image_m,
             'image_l': book.image_l
         }
     }
+    print(book_data)
     return JsonResponse(book_data)
 
 def get_rev_by_user_json_mob(request):
