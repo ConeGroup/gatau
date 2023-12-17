@@ -173,6 +173,7 @@ def get_book_by_collection_json_mob(request, id):
     books = collection.books.all()
     return HttpResponse(serializers.serialize("json", books))
 
+@csrf_exempt
 def create_collection_flutter(request):
     if request.method == 'POST':
         data = json.loads(request.body)
