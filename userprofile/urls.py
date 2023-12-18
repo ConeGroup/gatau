@@ -4,7 +4,7 @@ from home.views import home, user_home
 from userprofile.views import edit_profile
 from userprofile.views import change_password
 from userprofile.views import edit_profile_ajax
-from userprofile.views import change_password_ajax, show_userprofile_api, change_password_flutter
+from userprofile.views import change_password_ajax, show_userprofile_api, change_password_flutter, edit_profile_flutter
 
 app_name = 'userprofile'
 
@@ -17,4 +17,5 @@ urlpatterns = [
     path('change_password_ajax', change_password_ajax, name='change_password_ajax'),
     path('api/show_userprofile/', show_userprofile_api, name='show_userprofile_api'),
     path('api/change_password/', change_password_flutter, name='change_password_flutter'),
+    path('api/edit_profile/', edit_profile_flutter, name='edit_profile_flutter'),
 ]
