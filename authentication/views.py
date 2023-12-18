@@ -43,19 +43,19 @@ def login(request):
                 "username": user.username,
                 "status": True,
                 'email': user.email,
-                "message": "Login sukses!"
+                "message": "Login succeed!"
                 # Tambahkan data lainnya jika ingin mengirim data ke Flutter.
             }, status=200)
         else:
             return JsonResponse({
                 "status": False,
-                "message": "Login gagal, akun dinonaktifkan."
+                "message": "Login failed, deactivating account."
             }, status=401)
 
     else:
         return JsonResponse({
             "status": False,
-            "message": "Login gagal, periksa kembali email atau kata sandi."
+            "message": "Login failed, wrong username or password."
         }, status=401)
 
 @csrf_exempt
@@ -67,10 +67,10 @@ def logout(request):
         return JsonResponse({
             "username": username,
             "status": True,
-            "message": "Logout berhasil!"
+            "message": "Logout succeed!"
         }, status=200)
     except:
         return JsonResponse({
         "status": False,
-        "message": "Logout gagal."
+        "message": "Logout failed."
         }, status=401)
