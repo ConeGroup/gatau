@@ -89,7 +89,21 @@ def edit_profile(request):
     return render(request, 'userprofile.html', {'user_form': user_form})
 
 
-
+@csrf_exempt
+def edit_profile_flutter(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            user_form = EditProfileForm(data, instance=request.user)
+            if user_form.is_valid():
+                user_form.save()
+                return JsonResponse({'message': 'Email successfully changed'}, status=201)
+            else:
+                return JsonResponse({'error': user_form.errors}, status=400)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON format'}, status=400)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 
 

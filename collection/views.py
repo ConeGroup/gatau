@@ -1,3 +1,4 @@
+import json
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from .models import Collection
@@ -7,6 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from book.models import Book 
 from django.core import serializers
+from django.contrib.auth.models import User
 
 
 @login_required(login_url='/login')
@@ -115,7 +117,7 @@ def delete_collection(request, collection_id):
         return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
 
 def get_book_json(request):
-    books = Book.objects.filter(user=request.user)
+    books = Book.objects.all()
     return HttpResponse(serializers.serialize('json', books))
 
 def show_json(request):
@@ -125,3 +127,85 @@ def show_json(request):
 def show_json_by_id(request, id):
     data = Collection.objects.filter(pk=id)
     return HttpResponse(serializers.serialize("json", data), content_type="application/json")
+
+#------------------Tambahan untuk Mobile------------------
+#Mendapatkan nama user berdasarkan id
+def get_user_by_id_mob(request, id):
+    user = User.objects.get(pk=id)
+    user_data = user.username
+    return HttpResponse(user_data)
+
+#Mendapatkan buku berdasarkan id buku
+def get_book_by_id_json_mob(request, id):
+    book = Book.objects.get(pk=id)
+    book_data = {
+        'model': "book.book",
+        'pk': id,
+        'fields':{
+            'ISBN': book.ISBN,
+            'title': book.title,
+            'author': book.author,
+            'year': book.year,
+            'publisher': book.publisher,
+            'image_s': book.image_s,
+            'image_m': book.image_m,
+            'image_l': book.image_l
+        }
+    }
+    print(book_data)
+    return JsonResponse(book_data)
+
+#mendapatkan seluruh collections yang dimiliki oleh user
+def get_collections_by_user_mob(request):
+    user = request.user
+    collections = Collection.objects.filter(user=user)
+    return HttpResponse(serializers.serialize("json", collections))
+
+#Mendapatkan buku berdasarkan id buku
+def get_collections_by_book_json_mob(request, id):
+    book = Book.objects.get(pk=id)
+    collections = Collection.objects.filter(books=book)
+    return HttpResponse(serializers.serialize("json", collections))
+
+#ToDo: Buatkan get untuk mendapatkan buku yang terdapat pada collection
+def get_book_by_collection_json_mob(request, id):
+    collection = Collection.objects.get(pk=id)
+    books = collection.books.all()
+    return HttpResponse(serializers.serialize("json", books))
+
+@csrf_exempt
+def create_collection_flutter(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+
+        new_collection = Collection.objects.create(
+            name=data["name"], 
+            user = request.user,
+        )
+        new_collection.save()
+
+        return JsonResponse({'status': 'success'}, status=200)
+    else:
+        return JsonResponse({'status': 'error'}, status=400)
+
+@csrf_exempt
+def add_book_to_collection_flutter(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+
+        try:
+            collection_id = data["collection_id"]
+            book_id = data["book_id"]
+            collection = Collection.objects.get(pk=collection_id, user=request.user)
+            book = Book.objects.get(pk=book_id)
+            
+            # Adding the book to the collection
+            collection.books.add(book)
+            
+            return JsonResponse({'status': 'success'}, status=200)
+        except (Collection.DoesNotExist, Book.DoesNotExist):
+            return JsonResponse({'status': 'error'}, status=404)
+    else:
+        return JsonResponse({'status': 'error'}, status=400)
+
+
