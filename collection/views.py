@@ -188,3 +188,24 @@ def create_collection_flutter(request):
     else:
         return JsonResponse({'status': 'error'}, status=400)
 
+@csrf_exempt
+def add_book_to_collection_flutter(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+
+        try:
+            collection_id = data["collection_id"]
+            book_id = data["book_id"]
+            collection = Collection.objects.get(pk=collection_id, user=request.user)
+            book = Book.objects.get(pk=book_id)
+            
+            # Adding the book to the collection
+            collection.books.add(book)
+            
+            return JsonResponse({'status': 'success'}, status=200)
+        except (Collection.DoesNotExist, Book.DoesNotExist):
+            return JsonResponse({'status': 'error'}, status=404)
+    else:
+        return JsonResponse({'status': 'error'}, status=400)
+
+
