@@ -1,6 +1,7 @@
 from django.urls import path
 from reviews.views import show_main, get_book_json, add_review_ajax, review_sheet, review_page, back_to_main, get_review_by_user_json, get_book_by_id_json
-from reviews.views import get_review_json, book_details, edit_review, get_review_by_id_json, delete_review, get_book_user
+from reviews.views import get_review_json, book_details, edit_review, get_review_by_id_json, delete_review, get_book_user, get_book_by_id_json_mob, create_review_flutter
+from reviews.views import get_rev_by_user_json_mob, get_rev_by_book_json_mob, get_user_by_id_mob
 
 app_name = 'reviews'
 
@@ -19,5 +20,10 @@ urlpatterns = [
     path('book-details/<int:book_id>/', book_details, name='book_details'),
     path('edit-review/<int:review_id>/', edit_review, name='edit_review'),
     path('delete-review/<int:id>/', delete_review, name='delete_review'),
+    path('get-book-by-id-mob/<int:id>/', get_book_by_id_json_mob, name='get_book_by_id_json_mob'),
+    path('get-rev-by-user-mob/', get_rev_by_user_json_mob, name='get_rev_by_user_json_mob'),
+    path('get-rev-by-book-mob/<int:id>/', get_rev_by_book_json_mob, name='get_rev_by_book_json_mob'),
+    path('get-user-by-id-mob/<int:id>/', get_user_by_id_mob, name='get_user_by_id_mob'),
+    path('create-review/', create_review_flutter, name='create_review_flutter'),
 
 ]

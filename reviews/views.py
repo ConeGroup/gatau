@@ -1,3 +1,4 @@
+import json
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
@@ -9,6 +10,9 @@ from reviews.models import Review
 from reviews.forms import ReviewForm
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.models import User
+
+
 
 @login_required(login_url='../login')
 def show_main(request):
@@ -134,7 +138,6 @@ def add_review_ajax(request):
         else:
             is_recommended = False
 
-
         book = Book.objects.get(pk = book_id)
 
         review = Review(
@@ -232,3 +235,89 @@ def add_review_form(request):
             
     context = {'form':form}
     return render(request, 'create_review.html', context)
+
+@csrf_exempt
+def create_review_flutter(request):
+    if request.method == 'POST':
+        
+        data = json.loads(request.body)
+        book_id = data["book_id"]
+        book = Book.objects.get(pk = book_id)
+
+        new_review = Review.objects.create(
+            user = request.user,
+            book = book,
+            is_recommended = bool(data["is_recommended"]),
+            rating = int(data["rating"]),
+            book_review_desc = data["book_review_desc"]
+        )
+        new_review.save()
+
+        return JsonResponse({"status": "success"}, status=200)
+    else:
+        return JsonResponse({"status": "error"}, status=401)
+
+# NEW FOR MOBDEV
+def get_book_by_id_json_mob(request, id):
+    book = Book.objects.get(pk=id)
+    book_data = {
+        'model': "book.book",
+        'pk': id,
+        'fields':{
+            'ISBN': book.ISBN,
+            'title': book.title,
+            'author': book.author,
+            'year': book.year,
+            'publisher': book.publisher,
+            'image_s': book.image_s,
+            'image_m': book.image_m,
+            'image_l': book.image_l
+        }
+    }
+    print(book_data)
+    return JsonResponse(book_data)
+
+def get_rev_by_user_json_mob(request):
+    user = request.user
+    reviews = Review.objects.filter(user=user)
+    review_data = []
+    for review in reviews:
+        review_data.append({
+            'model': 'reviews.review',
+            'pk' : review.pk,
+            'fields':{
+                'user': user.id,
+                'book': review.book.pk,
+                'book_review_desc': review.book_review_desc,
+                'rating': review.rating,
+                'is_recommended': review.is_recommended,
+                'date_added': review.date_added,
+            }
+        })
+    return HttpResponse(serializers.serialize('json', reviews))
+
+    # return JsonResponse({'reviews': review_data})
+def get_rev_by_book_json_mob(request, id):
+    book = Book.objects.get(pk=id)
+    reviews = Review.objects.filter(book = book)
+    review_data = []
+    for review in reviews:
+        review_data.append({
+            'model': 'reviews.review',
+            'pk' : review.pk,
+            'fields':{
+                'user': review.user.pk,
+                'book': review.book.pk,
+                'book_review_desc': review.book_review_desc,
+                'rating': review.rating,
+                'is_recommended': review.is_recommended,
+                'date_added': review.date_added,
+            }
+        })
+    return HttpResponse(serializers.serialize('json', reviews))
+
+def get_user_by_id_mob(request, id):
+    user = User.objects.get(pk=id)
+    user_data = user.username
+    return HttpResponse(user_data)
+

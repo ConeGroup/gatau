@@ -1,4 +1,5 @@
 import datetime
+import json
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 from bookrequest.forms import BookReqForm
@@ -31,6 +32,15 @@ def show_request_page(request):
 def get_request_item_json(request):
     request_item = BookReq.objects.filter(user=request.user)
     return HttpResponse(serializers.serialize('json', request_item))
+
+@login_required(login_url='/auth/login/')
+def show_json(request):
+    data = BookReq.objects.filter(user=request.user)
+    return HttpResponse(serializers.serialize("json", data), content_type="application/json")
+
+def show_json_all(request):
+    data = BookReq.objects.all()
+    return HttpResponse(serializers.serialize("json", data), content_type="application/json")
 
 @csrf_exempt
 def create_request(request):
@@ -76,7 +86,30 @@ def update_request(request, id):
 
         request_item.save()
 
-        return HttpResponse(b"UPDATED", status=201)
+        return JsonResponse({"status": "success"}, status=200)
 
-    return HttpResponseNotFound()
+    return JsonResponse({"status": "error"}, status=401)
+
+@csrf_exempt
+def create_request_flutter(request):
+    if request.method == 'POST':
+        
+        data = json.loads(request.body)
+
+        new_product = BookReq.objects.create(
+            user = request.user,
+            title = data["title"],
+            author = data["author"],
+            isbn = int(data["isbn"]),
+            year = int(data["year"]),
+            publisher = data["publisher"],
+            initial_review = data["initial_review"],
+            image_m = data["image_m"],
+        )
+
+        new_product.save()
+
+        return JsonResponse({"status": "success"}, status=200)
+    else:
+        return JsonResponse({"status": "error"}, status=401)
     
