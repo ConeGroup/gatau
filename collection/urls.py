@@ -1,5 +1,5 @@
 from django.urls import path
-from collection.views import add_book_to_collection, add_book_to_collection_ajax, create_collection_flutter, get_book_by_collection_json_mob, get_book_by_id_json_mob, get_collections_by_book_json_mob, get_collections_by_user_mob, get_user_by_id_mob, remove_book_from_collection, show_collection, create_collection_ajax, delete_collection, edit_collection, get_book_json, get_collection_json, show_json, show_json_by_id
+from collection.views import add_book_to_collection, add_book_to_collection_ajax, add_book_to_collection_flutter, create_collection_flutter, get_book_by_collection_json_mob, get_book_by_id_json_mob, get_collections_by_book_json_mob, get_collections_by_user_mob, get_user_by_id_mob, remove_book_from_collection, show_collection, create_collection_ajax, delete_collection, edit_collection, get_book_json, get_collection_json, show_json, show_json_by_id
 
 app_name = 'collection'
 
@@ -22,6 +22,7 @@ urlpatterns = [
     path('get-collections-by-user-mob/', get_collections_by_user_mob, name='get_collections_by_user_mob'),
     path('get-collections-by-book-json-mob/<int:id>/', get_collections_by_book_json_mob, name='get_collections_by_book_json_mob'),
     path('get-book-by-collection-json-mob/<int:id>/', get_book_by_collection_json_mob, name='get_book_by_collection_json_mob'),
+    path('add-book-to-collection-flutter/', add_book_to_collection_flutter, name='add_book_to_collection_flutter')
 ]
 #get_user_by_id_mob
 #get_book_by_id_json_mob
@@ -29,3 +30,4 @@ urlpatterns = [
 #et_collections_by_book_json_mob
 #get_book_by_collection_json_mob
 #create_collection_flutter
+#add_book_to_collection_flutter
