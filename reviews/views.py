@@ -286,7 +286,7 @@ def get_rev_by_user_json_mob(request):
             'model': 'reviews.review',
             'pk' : review.pk,
             'fields':{
-                'user': user.id,
+                'user': review.user.pk,
                 'book': review.book.pk,
                 'book_review_desc': review.book_review_desc,
                 'rating': review.rating,
@@ -295,6 +295,25 @@ def get_rev_by_user_json_mob(request):
             }
         })
     return HttpResponse(serializers.serialize('json', reviews))
+
+# def get_rev_by_user_json_mob(request):
+#     user = request.user
+#     reviews = Review.objects.filter(user=user)
+#     review_data = []
+#     for review in reviews:
+#         review_data.append({
+#             'model': 'reviews.review',
+#             'pk' : review.pk,
+#             'fields':{
+#                 'user': review.user.pk,
+#                 'book': review.book.pk,
+#                 'book_review_desc': review.book_review_desc,
+#                 'rating': review.rating,
+#                 'is_recommended': review.is_recommended,
+#                 'date_added': review.date_added,
+#             }
+#         })
+    # return HttpResponse(serializers.serialize('json', reviews))
 
     # return JsonResponse({'reviews': review_data})
 def get_rev_by_book_json_mob(request, id):
